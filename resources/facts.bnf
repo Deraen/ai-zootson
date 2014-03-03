@@ -1,0 +1,9 @@
+S = SENTENCE
+SENTENCE = SUBJECT VERB OBJECT
+word = #'\p{L}+'
+space = #'\s'
+words = word <space>? | word (<space> word)*
+SUBJECT = words
+VERB = 'is' | 'has' | 'can'
+and = 'and' <space>
+OBJECT = 'a'? words | words and OBJECT
