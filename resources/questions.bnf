@@ -1,0 +1,17 @@
+<S> = BOOLEAN | HAVE | WHICH | HOW | COMPARISION | WHAT | MENTION
+<space> = <#'\s'> space?
+<word> = #'\p{L}+'
+<words> = word space? | word space words
+SUBJECT = words
+OBJECT = words
+
+ADJ = 'smaller' space?
+VERB = ('do' | 'does' | 'are' | 'has' | 'have' | 'can' | 'cannot' | 'eats') space
+
+BOOLEAN = <'is it'> space ('true' | 'false') space <'that'> space SUBJECT VERB OBJECT
+HAVE = <'do'> space SUBJECT <'have'> space OBJECT
+WHICH = <'which'> space SUBJECT VERB OBJECT
+HOW = <'how'> space SUBJECT VERB OBJECT VERB
+COMPARISION = <('are' | 'is')> space SUBJECT ADJ 'than' space OBJECT
+WHAT = <('what' | 'where')> space SUBJECT VERB OBJECT
+MENTION = <'mention'> space SUBJECT 'that' space OBJECT

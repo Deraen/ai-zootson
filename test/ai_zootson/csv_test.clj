@@ -6,4 +6,4 @@
 (facts "csv"
   (fact read-data
     (read-data "aardvark,1,0,0,0,0,0,0" continent-fields)
-    => (contains {:name "aardvark" [:lives-in :africa true]})))
+    => (contains {:name "aardvark" :lives-in {:africa true}})))
