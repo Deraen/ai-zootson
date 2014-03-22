@@ -2,5 +2,5 @@
   (:require [midje.sweet :refer :all]
             [ai-zootson.core :refer :all]))
 
-(fact answer-question
+#_(fact answer-question
   (answer-question [{:subject "anteater" :live "Africa"}] "Where do anteaters live?") => "Africa")
