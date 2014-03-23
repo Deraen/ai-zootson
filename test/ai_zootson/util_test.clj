@@ -11,7 +11,9 @@
   (pluralize "anteaters") => "anteaters")
 
 (fact with-singular
-  (with-singular #{"anteaters" "do"}) => #{"anteaters" "anteater" "do"})
+  (with-singular #{"anteaters" "do"}) => #{"anteaters" "anteater" "do"}
+  (with-singular #{"do"}) => #{"do"}
+  (with-singular #{}) => #{})
 
 (fact with-plural
   (with-plural #{"anteater" "do"}) => #{"anteaters" "anteater" "do" "dos"})
