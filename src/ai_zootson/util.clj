@@ -11,7 +11,7 @@
     (str word \s)))
 
 (defn with-singular [words]
-  (apply conj words (map unpluralize words)))
+  (clojure.set/union words (set (map unpluralize words))))
 
 (defn with-plural [words]
-  (apply conj words (map pluralize words)))
+  (clojure.set/union words (set (map pluralize words))))

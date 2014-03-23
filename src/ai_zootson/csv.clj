@@ -2,32 +2,34 @@
   (:require [clojure.data.csv :as csv]))
 
 ;; Fields
-(defn boolean-field [field]
-  (fn [value]
-    [field (= value "1")]))
+(defn field [prop valuefn]
+  (fn [acc value]
+    (assoc acc prop (valuefn value))))
 
-(defn str-field [field]
-  (fn [value]
-    [field (str value)]))
+(defn fact-field [property valuefn & [realvalue]]
+  (fn [acc value]
+    (let [value (valuefn value)
+          fact {:property property
+                :value (if realvalue realvalue value)}
+          fact (if-not value
+                 (assoc fact :not true)
+                 fact)]
+      (update-in acc [:facts] conj fact))))
 
-(defn numeric-field
-  ([field]
-   (numeric-field field {}))
-  ([field opts]
-   (fn [value]
-     [field (int value)])))
+(defn boolean-field [value]
+  (= value "1"))
+
+(defn numeric-field [value]
+  (Integer/parseInt value))
 
 ;; Read
-(defn read-field [[k v]]
+(defn read-field [acc [fun input]]
   "Read a field using given function. If keyword is given instead of
    function, new function is created using `boolean-field`"
-  (let [f (if (keyword? k)
-            (boolean-field k)
-            k)]
-    (f v)))
+  (fun acc input))
 
 (defn read-data [data fields]
   "Read csv data (vector of vectors)"
-  (map (fn [line]
-    (into {} (map read-field (zipmap fields line))))
-    (csv/read-csv data)))
+  (vec (map (fn [line]
+              (reduce read-field {} (zipmap fields line)))
+            (csv/read-csv data))))

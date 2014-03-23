@@ -23,7 +23,7 @@
   (let [subjects (subjects-set data)
         words-with-singular (with-singular words)
         found-subject-words (clojure.set/intersection words-with-singular subjects)
-        found-with-plural (with-plular found-subject-words)]
+        found-with-plural (with-plural found-subject-words)]
     (-> input
         (assoc :subjects found-subject-words)
         (update-in [:words] clojure.set/difference found-with-plural))))
