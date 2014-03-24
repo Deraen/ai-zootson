@@ -1,11 +1,12 @@
 (ns ai-zootson.facts
-  (:require [ai-zootson.sentence :as sentence]))
+  (:refer-clojure :exclude [==])
+  (:require [instaparse.core :as insta]
+            [ai-zootson.sentence :as sentence]
+            [clojure.core.logic :refer :all]
+            [clojure.core.logic.dcg :refer [def-->e]]))
 
-#_(def fact-language
+(def fact-language
   (insta/parser (clojure.java.io/resource "facts.bnf")))
-
-(defn filter-words [words]
-  (filter #(not (contains? skip-words %)) words))
 
 (defn parse-fact [data fact-str]
   (->> fact-str
@@ -19,3 +20,13 @@
 
 (defn read-facts [data]
   nil)
+
+(def-->e subjects [v]
+  ([[:subject "Lion"]] '[lion]))
+
+(def-->e sentence [s]
+  ([[:s s]] s))
+
+(defn parse-foo [words]
+  (run* [tree]
+        (sentence tree words [])))

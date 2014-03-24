@@ -18,6 +18,8 @@
 (def is-boolean-q? (some-set-contains #{"is" "it" "true"} #{"is" "it" "false"} #{"can"} #{"do" "have"}))
 (def is-numeric-q? (some-set-contains #{"how" "many"}))
 (def is-generic-q? (some-set-contains #{"what"}))
+(def is-comp-q? (some-set-contains #{"which" "is" "smaller"} #{"which" "is" "larger"}
+                                   #{"which" "is" "faster"} #{"which" "is" "slower"}))
 
 (defn format-continents [facts]
   (cond
@@ -37,10 +39,14 @@
     (clojure.string/join "," facts)
     "none"))
 
+(defn format-comp [facts]
+  nil)
+
 (def questions {:location [is-location-q? format-continents]
                 :boolean  [is-boolean-q? format-boolean]
                 :numeric [is-numeric-q? format-numeric]
-                :general [is-generic-q? format-general]})
+                :general [is-generic-q? format-general]
+                :comp [is-comp-q? format-comp]})
 
 (defn find-qwords [{:keys [words] :as input}]
   (let [[qtype found-qwords] (some (fn [[k [qtest _]]]

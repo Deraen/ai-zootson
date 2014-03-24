@@ -1,6 +1,9 @@
 (ns ai-zootson.questions-test
+  (:refer-clojure :exclude [==])
   (:require [midje.sweet :refer :all]
-            [ai-zootson.questions :refer :all]))
+            [ai-zootson.questions :refer :all]
+            [clojure.core.logic :refer :all]
+            [clojure.core.logic.pldb :as pldb]))
 
 (fact is-location-q?
   (is-location-q? #{"where" "foo"}) => #{"where"}
@@ -27,3 +30,40 @@
 (fact answer-question
   (answer-question sample-facts "Where do anteaters live?") => "Africa"
   (answer-question sample-facts "How many legs does an anteater have?") => "5")
+
+
+(pldb/db-rel animal fact)
+(pldb/db-rel continent fact)
+(pldb/db-rel lives-in animal continent)
+
+(pldb/db-rel is-faster a1 a2)
+
+(defn is-slower [a1 a2]
+  (is-faster a2 a1))
+
+(defn is-alias [x y]
+  [x y])
+
+(def test-facts (pldb/db
+                  [animal "Lion"]
+                  [animal "Pidgeon"]
+
+                  [continent "Africa"]
+                  [continent "Europe"]
+
+                  [is-alias "Lion" "Leijona"]
+
+                  [is-faster "Pidgeon" "Lion"]
+
+                  [lives-in "Lion" "Africa"]
+                  [lives-in "Pidgeon" "Europe"]))
+
+(fact core.logic
+  (pldb/with-db test-facts
+    (run* [q]
+          (lives-in q "Africa")) => (just "Lion")
+    (run* [q]
+          (is-faster q "Lion")) => (just "Pidgeon")
+    (not (empty? (run* [q]
+                       (animal "Leijona")
+                       (lives-in q "Africa")))) => true))

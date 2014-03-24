@@ -4,6 +4,9 @@
 
 (def sample-facts [{:subject "aardvark" :facts [{:property "mammal" :value true}]}])
 
-(fact parse-fact
+#_(fact parse-fact
   (parse-fact sample-facts "Aardvark is a good swimmer")
   => {:subject "aardvark" :facts #{"swim"}})
+
+(fact parse-foo
+  (parse-foo "Where do lions live?") => [])
