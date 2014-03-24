@@ -28,7 +28,13 @@
                   (fact-field "tail" boolean-field)
                   (fact-field "domestic" boolean-field)
                   (fact-field "catsize" boolean-field)
-                  (fact-field "type" numeric-field)])
+                  (type-field {1 "mammal"
+                               2 "bird"
+                               3 "reptile"
+                               4 "fish"
+                               5 "amphibian"
+                               6 "insect"
+                               7 "invertebrate"})])
 
 (def continent-fields [(field :subject str)
                        (fact-field "live" boolean-field "africa")

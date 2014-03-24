@@ -24,8 +24,14 @@
     facts => (contains [{:property "hair" :value true}
                         {:property "live" :value "africa"}]))
 
+  (parse-question @ai-facts "How many reptiles do you know?") => (contains {:qtype :numeric :q #{"how" "many"}
+                                                                            :facts #{"reptile"} :subjects #{}})
+
+  (let [parsed (parse-question @ai-facts "What hairy reptiles do you know?")]
+    parsed => (contains {:qtype :general :q #{"what"}
+                         :facts #{"hair" "reptile"}}))
+
   (facts "questions"
-    (init)
     (tabular
       (fact answer-question
         (answer-question @ai-facts ?line) => ?expected)

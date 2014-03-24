@@ -2,8 +2,8 @@
   (:require [midje.sweet :refer :all]
             [ai-zootson.facts :refer :all]))
 
-(facts "read"
-  (fact read-fact
-    (read-fact "Aardvark is a good swimmer")
-    => {:name "aardvark" :good-swimmer true}))
+(def sample-facts [{:subject "aardvark" :facts [{:property "mammal" :value true}]}])
 
+(fact parse-fact
+  (parse-fact sample-facts "Aardvark is a good swimmer")
+  => {:subject "aardvark" :facts #{"swim"}})

@@ -11,8 +11,8 @@
     "Returns either set of qwords which were found, or nil"
     (some (fn [qwords]
             (if (clojure.set/subset? qwords words)
-             qwords
-             nil)) col)))
+              qwords
+              nil)) col)))
 
 (def is-location-q? (some-set-contains #{"where"}))
 (def is-boolean-q? (some-set-contains #{"is" "it" "true"} #{"is" "it" "false"} #{"can"} #{"do" "have"}))
@@ -28,12 +28,14 @@
     (empty? facts))
 
 (defn format-numeric [facts]
-  (if (= (count facts) 1)
-    (str (first facts))
-    (str (count facts))))
+  (str (if (= (count facts) 1)
+    (first facts)
+    (count facts))))
 
 (defn format-general [facts]
-  (clojure.string/join "," facts))
+  (if-not (empty facts)
+    (clojure.string/join "," facts)
+    "none"))
 
 (def questions {:location [is-location-q? format-continents]
                 :boolean  [is-boolean-q? format-boolean]
@@ -42,23 +44,19 @@
 
 (defn find-qwords [{:keys [words] :as input}]
   (let [[qtype found-qwords] (some (fn [[k [qtest _]]]
-                                     (let [r (qtest words)]
-                                       (if r
-                                         [k r]
-                                         nil)))
+                                     (if-let [r (qtest words)]
+                                       [k r]
+                                       nil))
                                    questions)]
     (-> input
         (assoc :q found-qwords
                :qtype qtype)
         (update-in [:words] clojure.set/difference found-qwords))))
 
-(defn create-input [line]
-  {:words line})
-
 (defn parse-question [data question]
   (->> question
        sentence/parse-line
-       create-input
+       ((fn [words] {:words words}))
        find-qwords
        (sentence/find-subjects data)
        (sentence/find-facts data)))

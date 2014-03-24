@@ -21,16 +21,18 @@
 
 (defn find-subjects [data {:keys [words] :as input}]
   (let [subjects (subjects-set data)
-        words-with-singular (with-singular words)
-        found-subject-words (clojure.set/intersection words-with-singular subjects)
-        found-with-plural (with-plural found-subject-words)]
+        words-all (with-singular (with-plural words))
+        found-subject-words (clojure.set/intersection words-all subjects)
+        found-all (with-plural (with-singular found-subject-words))]
     (-> input
         (assoc :subjects found-subject-words)
-        (update-in [:words] clojure.set/difference found-with-plural))))
+        (update-in [:words] clojure.set/difference found-all))))
 
 (defn find-facts [data {:keys [words] :as input}]
   (let [facts (facts-set data)
-        found-fact-words (clojure.set/intersection words facts)]
+        words-all (with-singular (with-plural words))
+        found-fact-words (clojure.set/intersection words-all facts)
+        found-all (with-singular (with-plural found-fact-words))]
     (-> input
         (assoc :facts found-fact-words)
-        (update-in [:words] clojure.set/difference found-fact-words))))
+        (update-in [:words] clojure.set/difference found-all))))
