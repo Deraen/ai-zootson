@@ -29,6 +29,7 @@
 
   (let [parsed (parse-question @ai-facts "What hairy reptiles do you know?")]
     parsed => (contains {:qtype :general :q #{"what"}
+                         :subjects #{}
                          :facts #{"hair" "reptile"}}))
 
   (facts "questions"
