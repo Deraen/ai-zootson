@@ -16,11 +16,18 @@
                  fact)]
       (update-in acc [:facts] conj fact))))
 
-(defn boolean-field [value]
-  (= value "1"))
-
 (defn numeric-field [value]
   (Integer/parseInt value))
+
+(defn type-field [typemap]
+  (fn [acc value]
+    (let [value (numeric-field value)
+          fact {:property (typemap value)
+                :value true}]
+      (update-in acc [:facts] conj fact))))
+
+(defn boolean-field [value]
+  (= value "1"))
 
 ;; Read
 (defn read-field [acc [fun input]]
