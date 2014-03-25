@@ -1,64 +1,58 @@
 (ns ai-zootson.core
+  (:refer-clojure :exclude [==])
   (:require [slingshot.slingshot :refer [throw+]]
+            [clojure.core.logic :refer :all]
+            [clojure.core.logic.pldb :as pldb]
+            [ai-zootson.domain :refer :all]
             [ai-zootson.csv :refer :all]
             [ai-zootson.questions :refer :all]
             [ai-zootson.util :refer :all]
-            [ai-zootson.facts :refer [read-facts]]))
+            [ai-zootson.facts :refer [read-facts]]
+            ))
 
-(def ai-facts (atom nil))
+(defn read-zoo-data [db [name hair feathers eggs milk airborne aquatic predator toothed backbone
+                         breathes venomous fins legs tail domestic catsize type]]
+  (-> db
+      (pldb/db-fact animal name)
+      (pldb/db-fact has-property name "hair" (= hair "1"))
+      (pldb/db-fact has-property name "feathers" (= feathers "1"))
+      (pldb/db-fact has-property name "eggs" (= eggs "1"))
+      (pldb/db-fact has-property name "milk" (= milk "1"))
+      (pldb/db-fact has-property name "airborne" (= airborne "1"))
+      (pldb/db-fact has-property name "aquatic" (= aquatic "1"))
+      (pldb/db-fact has-property name "predator" (= predator "1"))
+      (pldb/db-fact has-property name "toothed" (= toothed "1"))
+      (pldb/db-fact has-property name "backbone" (= backbone "1"))
+      (pldb/db-fact has-property name "breathes" (= breathes "1"))
+      (pldb/db-fact has-property name "venomous" (= venomous "1"))
+      (pldb/db-fact has-property name "fins" (= fins "1"))
+      (pldb/db-fact has-property name "legs" (Integer/parseInt legs))
+      (pldb/db-fact has-property name "tail" (= tail "1"))
+      (pldb/db-fact has-property name "domestic" (= domestic "1"))
+      (pldb/db-fact has-property name "catsize" (= catsize "1"))
+      (pldb/db-fact classify name (get animal-classes (Integer/parseInt type)))
+      ))
 
-(defn read-file [file-name f & rest]
+(defn read-continent [db [name africa europe asia north-america south-america australia antarctica]]
+  (-> db
+      ;; zoo.data and continents.txt should have same animals but it wont hurt to define animals again
+      (pldb/db-fact animal name)
+      (pldb/db-fact lives-in name "africa" (= africa "1"))
+      (pldb/db-fact lives-in name "europe" (= europe "1"))
+      (pldb/db-fact lives-in name "asia" (= asia "1"))
+      (pldb/db-fact lives-in name "north-america" (= north-america "1"))
+      (pldb/db-fact lives-in name "south-america" (= south-america "1"))
+      (pldb/db-fact lives-in name "australia" (= australia "1"))
+      (pldb/db-fact lives-in name "antarctica" (= antarctica "1"))
+      ))
+
+(defn read-file [db file-name f & rest]
   (with-open [rdr (clojure.java.io/reader file-name)]
-    (apply f rdr rest)))
+    (apply f db rdr rest)))
 
-(def data-fields [(field :subject str)
-                  (fact-field #{"hair" "hairy"} boolean-field)
-                  (fact-field "feathers" boolean-field)
-                  (fact-field "eggs" boolean-field)
-                  (fact-field "milk" boolean-field)
-                  (fact-field "airborne" boolean-field)
-                  (fact-field #{"aquatic" "swim"} boolean-field)
-                  (fact-field "predator" boolean-field)
-                  (fact-field #{"toothed" "tooth"} boolean-field)
-                  (fact-field "backbone" boolean-field)
-                  (fact-field "breathes" boolean-field)
-                  (fact-field "venomous" boolean-field)
-                  (fact-field "fins" boolean-field)
-                  (fact-field "legs"numeric-field)
-                  (fact-field "tail" boolean-field)
-                  (fact-field "domestic" boolean-field)
-                  (fact-field "catsize" boolean-field)
-                  (type-field {1 "mammal"
-                               2 "bird"
-                               3 "reptile"
-                               4 "fish"
-                               5 "amphibian"
-                               6 "insect"
-                               7 "invertebrate"})])
-
-(def continent-fields [(field :subject str)
-                       (fact-field "live" boolean-field "africa")
-                       (fact-field "live" boolean-field "europe")
-                       (fact-field "live" boolean-field "asia")
-                       (fact-field "live" boolean-field "north-america")
-                       (fact-field "live" boolean-field "south-america")
-                       (fact-field "live" boolean-field "australia")
-                       (fact-field "live" boolean-field "antarctica")])
-
-(defn merge-fields [val & rest]
-  (if (sequential? val)
-    (vec (apply concat val rest))
-    val))
-
-(defn merge-facts [& cols]
-  (->> cols
-       (apply concat)
-       (group-by :subject)
-       (map (fn [[k v]]
-              (apply merge-with merge-fields v)))))
-
-(defn init []
-  (reset! ai-facts (merge-facts
-                     (read-file "inputs/zoo.data" read-data data-fields)
-                     (read-file "inputs/continents.txt" read-data continent-fields)
-                     #_(read-file "inputs/facts.txt" read-facts))))
+(defn read-files []
+  "Create a new db and add facts from files into it."
+  (-> (pldb/db)
+      (read-file "inputs/zoo.data" read-data read-zoo-data)
+      (read-file "inputs/continents.txt" read-data read-continent)
+      ))
