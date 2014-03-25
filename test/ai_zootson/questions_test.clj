@@ -34,36 +34,79 @@
 
 (pldb/db-rel animal fact)
 (pldb/db-rel continent fact)
-(pldb/db-rel lives-in animal continent)
+(pldb/db-rel rank fact)
 
+(pldb/db-rel classify animal rank)
+(pldb/db-rel lives-in animal continent)
+(pldb/db-rel has-prop animal property)
+(pldb/db-rel eats animal food)
+(pldb/db-rel is-able-to thing)
+
+(pldb/db-rel is-alias a1 a2)
 (pldb/db-rel is-faster a1 a2)
 
 (defn is-slower [a1 a2]
   (is-faster a2 a1))
 
-(defn is-alias [x y]
-  [x y])
+(defn some-animal [q y]
+  (conde
+    [(animal y) (== q y)]
+    [(is-alias q y)]
+    ;; [(fresh [singular]
+    ;;         (== singular (subs 0 (- (count y))))
+    ;;         (some-animal q singular))]
+    ))
+
+(defn check-fact [animal fact]
+  (conde
+    [(has-prop animal fact)]
+    [(classify animal fact)]
+    [(eats animal fact)]
+    [(is-able-to animal fact)]))
 
 (def test-facts (pldb/db
                   [animal "Lion"]
-                  [animal "Pidgeon"]
+                  [animal "Pigeon"]
+
+                  [animal "Snake"]
+                  [rank "Reptile"]
+                  [classify "Snake" "Reptile"]
+                  [has-prop "Snake" "Hair"]
+
+                  [animal "Fish"]
+                  [is-able-to "Fish" "Swim"]
+                  [eats "Fish" "Plankton"]
+
+                  [not [is-able-to "Lion" "Swim"]]
 
                   [continent "Africa"]
                   [continent "Europe"]
 
+                  [is-faster "Pigeon" "Lion"]
+
                   [is-alias "Lion" "Leijona"]
 
-                  [is-faster "Pidgeon" "Lion"]
-
                   [lives-in "Lion" "Africa"]
-                  [lives-in "Pidgeon" "Europe"]))
+                  [lives-in "Pigeon" "Europe"]))
 
 (fact core.logic
   (pldb/with-db test-facts
+    (run* [q] (lives-in q "Africa")) => (just "Lion")
+    (run* [q] (is-faster q "Lion")) => (just "Pigeon")
+    (run* [q] (is-alias q "Leijona")) => (just "Lion")
+    (run* [q] (is-alias q "Lion")) => empty?
+    (run* [q] (is-slower q "Pigeon")) => (just "Lion")
+    (run* [q] (== q "Lion")) => (just "Lion")
+    (run* [q] (some-animal q "Lion")) => (just "Lion")
+    (run* [q] (some-animal q "Leijona")) => (just "Lion")
+    ;; (run* [q] (some-animal q "Lions")) => (just "Lion")
     (run* [q]
+          (some-animal q "Leijona")
           (lives-in q "Africa")) => (just "Lion")
     (run* [q]
-          (is-faster q "Lion")) => (just "Pidgeon")
-    (not (empty? (run* [q]
-                       (animal "Leijona")
-                       (lives-in q "Africa")))) => true))
+          (check-fact q "Reptile")
+          (check-fact q "Hair")) => (just "Snake")
+    (run* [q]
+          (check-fact q "Plankton")
+          (check-fact q "Swim")) => (just "Fish")
+    ))
