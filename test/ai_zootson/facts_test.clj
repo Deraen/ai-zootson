@@ -5,22 +5,60 @@
             [clojure.core.logic.pldb :as pldb]
             [ai-zootson.facts :refer :all]))
 
-(def sample-facts [{:subject "aardvark" :facts [{:property "mammal" :value true}]}])
+(fact parse-fact
+  (tabular
+    (fact (parse-fact ?line) => ?expected)
+  ?line ?expected
+  "Anteater is a synonym for aardvark."
+  [[:SUBJECT "anteater"] [:VERB "is"] [:OBJECT "a" "synonym" "for" "aardvark"]]
 
-#_(fact parse-fact
-  (parse-fact sample-facts "Aardvark is a good swimmer")
-  => {:subject "aardvark" :facts #{"swim"}})
+  "Aardvark is a good swimmer."
+  [[:SUBJECT "aardvark"] [:VERB "is"] [:OBJECT "a" "good" "swimmer"]]
 
-(fact parse-foo
-  (pldb/with-db (pldb/db
-                  [is-det "a"]
-                  [is-det "an"]
-                  [is-noun "anteater"]
-                  [is-noun "aardvark"]
-                  [is-verb "is"])
-    (run* [q] (is-noun q)) => '("aardvark" "anteater")
-    (run* [q] (noun-pharse q ["a" "anteater"] [])) => '([:np [:det "a"] [:noun "anteater"]])
-    (run* [q] (verb-pharse q ["is" "a" "aardvark"] [])) => '([:vp [:verb "is"] [:np [:det "a"] [:noun "aardvark"]]])
-    (parse-foo "an anteater is an aardvark") => '([:s [:np [:det "an"] [:noun "anteater"]] [:vp [:verb "is"] [:np [:det "an"] [:noun "aardvark"]]]])
-    (parse-foo "Anteater is a synonym for aardvark") => [:s [:np [:noun "anteater"]]]
-    ))
+  "Cheetah is the fastest land animal."
+  [[:SUBJECT "cheetah"] [:VERB "is"] [:OBJECT "the" "fastest" "land" "animal"]]
+
+  "Crayfish are smaller than lobsters."
+  [[:SUBJECT "crayfish"] [:VERB "are"] [:OBJECT "smaller" "than" "lobsters"]]
+
+  "Pussycats exist."
+  [[:SUBJECT "pussycats"] [:VERB "exist"]]
+
+  "An elephants has a trunk."
+  [[:SUBJECT "elephants"] [:VERB "has"] [:OBJECT "a" "trunk"]]
+
+  "Elephants have big ears."
+  [[:SUBJECT "elephants"] [:VERB "have"] [:OBJECT "big" "ears"]]
+
+  ;; "Male African elephant is the largest living terrestrial animal."
+  ;; [[:SUBJECT "male" "african" "elephant"] [:VERB "is"] [:OBJECT "the" "largest" "living" "terrestial" "animal"]]
+
+  ;; "Eastern lowland gorilla is the largest living primate."
+
+  "Kiwis are nocturnal birds."
+  [[:SUBJECT "kiwis"] [:VERB "are"] [:OBJECT "nocturnal" "birds"]]
+
+  "The kiwi is a national symbol of New Zealand."
+  [[:SUBJECT "kiwi"] [:VERB "is"] [:OBJECT "a" "national" "symbol" "of" "new" "zealand"]]
+
+  ;; "Ladybird is also known as ladybug."
+  ;; [[:SUBJECT "ladybird"] [:VERB "is"]
+
+  "Lynx have short tails."
+  [[:SUBJECT "lynx"] [:VERB "have"] [:OBJECT "short" "tails"]]
+
+  ;; "Mongooses feed on insects, worms, snakes, and birds, etc."
+  ;; [[:SUBJECT "mongooses"] [:VERB "feed"] [:OBJECT "on"]]
+
+  "Octopuses are intelligent."
+  [[:SUBJECT "octopuses"] [:VERB "are"] [:OBJECT "intelligent"]]
+
+  ;; "Octopuses are more intelligent than worms."
+  ;; [[:SUBJECT "octopuses"] [:VERB "are"] [:OBJECT "more" "intelligent" "than" "worms"]]
+
+  "Vampires and fruitbats are bats."
+  [[:SUBJECT "vampires" [:SUBJECT "fruitbats"]] [:VERB "are"] [:OBJECT "bats"]]
+
+  "Pussycats and girls can meow."
+  [[:SUBJECT "pussycats" [:SUBJECT "girls"]] [:VERB "can"] [:OBJECT "meow"]]
+  ))
