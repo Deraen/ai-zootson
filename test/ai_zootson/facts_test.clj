@@ -10,55 +10,91 @@
     (fact (parse-fact ?line) => ?expected)
   ?line ?expected
   "Anteater is a synonym for aardvark."
-  [[:SUBJECT "anteater"] [:VERB "is"] [:OBJECT "a" "synonym" "for" "aardvark"]]
+  [[:SUBJECT [:NOUN "anteater"]]
+   [:VERB "is"]
+   [:OBJECT [:conj [:NOUN "synonym"] "for" [:NOUN "aardvark"]]]]
 
   "Aardvark is a good swimmer."
-  [[:SUBJECT "aardvark"] [:VERB "is"] [:OBJECT "a" "good" "swimmer"]]
+  [[:SUBJECT [:NOUN "aardvark"]]
+   [:VERB "is"]
+   [:OBJECT [:adj [:ADJ "good"] [:NOUN "swimmer"]]]]
 
   "Cheetah is the fastest land animal."
-  [[:SUBJECT "cheetah"] [:VERB "is"] [:OBJECT "the" "fastest" "land" "animal"]]
+  [[:SUBJECT [:NOUN "cheetah"]]
+   [:VERB "is"]
+   [:OBJECT [:adj [:ADJ "fastest"] [:NOUN "land" "animal"]]]]
 
   "Crayfish are smaller than lobsters."
-  [[:SUBJECT "crayfish"] [:VERB "are"] [:OBJECT "smaller" "than" "lobsters"]]
+  [[:SUBJECT [:NOUN "crayfish"]]
+   [:VERB "are"]
+   [:OBJECT [:than [:NOUN "smaller"] [:NOUN "lobsters"]]]]
 
   "Pussycats exist."
-  [[:SUBJECT "pussycats"] [:VERB "exist"]]
+  [[:SUBJECT [:NOUN "pussycats"]]
+   [:VERB "exist"]]
 
   "An elephants has a trunk."
-  [[:SUBJECT "elephants"] [:VERB "has"] [:OBJECT "a" "trunk"]]
+  [[:SUBJECT [:NOUN "elephants"]]
+   [:VERB "has"]
+   [:OBJECT [:NOUN "trunk"]]]
 
   "Elephants have big ears."
-  [[:SUBJECT "elephants"] [:VERB "have"] [:OBJECT "big" "ears"]]
+  [[:SUBJECT [:NOUN "elephants"]]
+   [:VERB "have"]
+   [:OBJECT [:adj [:ADJ "big"] [:NOUN "ears"]]]]
 
-  ;; "Male African elephant is the largest living terrestrial animal."
-  ;; [[:SUBJECT "male" "african" "elephant"] [:VERB "is"] [:OBJECT "the" "largest" "living" "terrestial" "animal"]]
+  "Male African elephant is the largest living terrestrial animal."
+  [[:SUBJECT [:NOUN "male" "african" "elephant"]]
+    [:VERB "is"]
+    [:OBJECT [:adj [:ADJ "largest"] [:NOUN "living" "terrestrial" "animal"]]]]
 
-  ;; "Eastern lowland gorilla is the largest living primate."
+  "Eastern lowland gorilla is the largest living primate."
+  [[:SUBJECT [:NOUN "eastern" "lowland" "gorilla"]]
+   [:VERB "is"]
+   [:OBJECT [:adj [:ADJ "largest"] [:NOUN "living" "primate"]]]]
 
   "Kiwis are nocturnal birds."
-  [[:SUBJECT "kiwis"] [:VERB "are"] [:OBJECT "nocturnal" "birds"]]
+  [[:SUBJECT [:NOUN "kiwis"]]
+   [:VERB "are"]
+   [:OBJECT [:NOUN "nocturnal" "birds"]]]
 
   "The kiwi is a national symbol of New Zealand."
-  [[:SUBJECT "kiwi"] [:VERB "is"] [:OBJECT "a" "national" "symbol" "of" "new" "zealand"]]
+  [[:SUBJECT [:NOUN "kiwi"]]
+   [:VERB "is"]
+   [:OBJECT [:conj [:NOUN "national" "symbol"] "of" [:NOUN "new" "zealand"]]]]
 
-  ;; "Ladybird is also known as ladybug."
-  ;; [[:SUBJECT "ladybird"] [:VERB "is"]
+  "Ladybird is also known as ladybug."
+  [[:SUBJECT [:NOUN "ladybird"]]
+   [:VERB "is"]
+   [:OBJECT [:conj [:NOUN "also" "known"] "as" [:NOUN "ladybug"]]]]
 
   "Lynx have short tails."
-  [[:SUBJECT "lynx"] [:VERB "have"] [:OBJECT "short" "tails"]]
+  [[:SUBJECT [:NOUN "lynx"]]
+   [:VERB "have"]
+   [:OBJECT [:adj [:ADJ "short"] [:NOUN "tails"]]]]
 
-  ;; "Mongooses feed on insects, worms, snakes, and birds, etc."
-  ;; [[:SUBJECT "mongooses"] [:VERB "feed"] [:OBJECT "on"]]
+  "Mongooses feed on insects, worms, snakes, and birds, etc."
+  [[:SUBJECT [:NOUN "mongooses"]]
+   [:VERB "feed"]
+   [:OBJECT [:prep "on"] [:NOUN "insects"] [:NOUN "worms"] [:NOUN "snakes"] [:NOUN "birds"] [:NOUN "etc"]]]
 
   "Octopuses are intelligent."
-  [[:SUBJECT "octopuses"] [:VERB "are"] [:OBJECT "intelligent"]]
+  [[:SUBJECT [:NOUN "octopuses"]]
+   [:VERB "are"]
+   [:OBJECT [:NOUN "intelligent"]]]
 
-  ;; "Octopuses are more intelligent than worms."
-  ;; [[:SUBJECT "octopuses"] [:VERB "are"] [:OBJECT "more" "intelligent" "than" "worms"]]
+  "Octopuses are more intelligent than worms."
+  [[:SUBJECT [:NOUN "octopuses"]]
+   [:VERB "are"]
+   [:OBJECT [:than "more" [:NOUN "intelligent"] [:NOUN "worms"]]]]
 
   "Vampires and fruitbats are bats."
-  [[:SUBJECT "vampires" [:SUBJECT "fruitbats"]] [:VERB "are"] [:OBJECT "bats"]]
+  [[:SUBJECT [:NOUN "vampires"] [:NOUN "fruitbats"]]
+   [:VERB "are"]
+   [:OBJECT [:NOUN "bats"]]]
 
   "Pussycats and girls can meow."
-  [[:SUBJECT "pussycats" [:SUBJECT "girls"]] [:VERB "can"] [:OBJECT "meow"]]
+  [[:SUBJECT [:NOUN "pussycats"] [:NOUN "girls"]]
+   [:VERB "can"]
+   [:OBJECT [:NOUN "meow"]]]
   ))
