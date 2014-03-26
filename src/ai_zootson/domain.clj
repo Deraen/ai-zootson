@@ -60,5 +60,6 @@
   (conde
     [(has-property animal fact true)]
     [(classify animal fact)]
-    [(eats animal fact)]
-    [(is-able-to animal fact)]))
+    ;; [(eats animal fact)]
+    ;; [(is-able-to animal fact)]
+    ))
