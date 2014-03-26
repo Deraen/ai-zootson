@@ -1,7 +1,0 @@
-<S> = SUBJECT VERB OBJECT <'.'>?
-<word> = #'\p{L}+'
-<space> = <#'\s'>
-<words> = word space? | word space words
-SUBJECT = words | words 'and' words
-VERB = ('is' | 'has' | 'can') space?
-OBJECT = words
