@@ -6,6 +6,10 @@
             ))
 
 (def fact-language
+  "Notes:
+   Some adjectives are classified as Nouns.
+   But that won't matter as reason for having separate adjectives
+   is just to separate multi word nouns etc."
   (insta/parser
     "<S> = SUBJECT VERB OBJECT <TERMINATOR?> | SUBJECT VERB <TERMINATOR?>
      <word> = #'\\p{L}+'
@@ -22,7 +26,7 @@
      VERB = ('is' | 'are' | 'have' | 'has' | 'can' | 'feed' | 'exist') space?
 
      (* ADJ = !(articles space) word *)
-     ADJ = 'short' | 'big' | 'smaller' | 'good' | 'largest' | 'fastest'
+     ADJ = 'short' | 'big' | 'smaller' | 'good' | 'largest' | 'fastest' | 'bad'
 
      conj = [ADJ space] NOUN space conjunctions space [ADJ space] NOUN
      adj = <[articles space]> ADJ (space ADJ)* space NOUNS
@@ -34,15 +38,18 @@
      TERMINATOR = '.' | '?' | '!'
      "))
 
-(defn parse-fact [fact-str]
+(defn parse-fact-sentence [fact-str]
   (->> fact-str
        clojure.string/lower-case
        fact-language
        ))
 
-(defn read-fact [data fact-str]
-  nil)
+(defn add-facts [db parsed]
+  db)
 
-(defn read-facts [data]
-  nil)
-
+(defn read-facts [db data]
+  (reduce (fn [db line]
+            (->> line
+                 (parse-fact-sentence)
+                 (add-facts db)))
+          db (line-seq data)))
