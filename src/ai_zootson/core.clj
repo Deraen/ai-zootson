@@ -55,4 +55,6 @@
   (-> (pldb/db)
       (read-file "inputs/zoo.data" read-data read-zoo-data)
       (read-file "inputs/continents.txt" read-data read-continent)
+      (read-file "inputs/facts.txt" read-facts)
+      (read-file "inputs/own_facts.txt" read-facts)
       ))

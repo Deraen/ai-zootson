@@ -7,8 +7,9 @@
 
 (fact parse-fact
   (tabular
-    (fact (parse-fact ?line) => ?expected)
+    (fact (parse-fact-sentence ?line) => ?expected)
     ?line ?expected
+
     "Anteater is a synonym for aardvark."
     [[:SUBJECT [:NOUN "anteater"]]
      [:VERB "is"]
@@ -98,6 +99,7 @@
      [:VERB "can"]
      [:OBJECT [:NOUN "meow"]]]
 
+    ;; Own facts
     "Crayfish are smaller than dolphins."
     [[:SUBJECT [:NOUN "crayfish"]]
      [:VERB "are"]
@@ -107,4 +109,10 @@
     [[:SUBJECT [:NOUN "cheetah"]]
      [:VERB "are"]
      [:OBJECT [:than [:NOUN "faster"] [:NOUN "girls"]]]]
+
+    ;; For deus
+    "Python is a bad programming language."
+    [[:SUBJECT [:NOUN "python"]]
+     [:VERB "is"]
+     [:OBJECT [:adj [:ADJ "bad"] [:NOUN "programming" "language"]]]]
   ))
