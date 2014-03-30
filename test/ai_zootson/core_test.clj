@@ -12,40 +12,49 @@
     ;; There should be as many animals as in test input...
     (count (run* [q] (animal q))) => 100
 
-    ;; (run* [q] (lives-in "anteaters" q true)) => (just "africa")
+    ;; From zoo.data and continents.txt
     (run* [q] (lives-in "aardvark" q true)) => (just "africa")
     (count (run* [q] (classify q "reptile"))) => 5
     (run* [q] (classify q "reptile") (has-property q "hair" true)) => empty?
-    ;; (run* [q] (lives-in q "south-america") (classify q "bat")) => (just "vampire")
+    (run* [q] (has-property "crayfish" "legs" q)) => (just 6)
+    (run* [q] (has-property "deer" "venomous" false)) =not=> empty?
+
+    ;; From facts.txt
+    ;; Examples
+    ;; (run* [q] (lives-in "anteaters" q true)) => (just "africa")
+    (run* [q] (lives-in q "south-america" true) (is-smth q "bat")) => (just "vampire")
     ;; (run* [q] (eats q "worm")) => (just "mongoose")
-    ;; (run* [q] (has-property "lynx" "tail" q)) => (just "short")
+    (run* [q] (is-smth "lynx" "tail" q)) => (just "short")
 
-    ;; (run* [q] (conde
-    ;;             [(== q "crayfish") (is-smaller q "dolphin")]
-    ;;             [(== q "dolphin") (is-smaller q "crayfish")])) => (just "crayfish")
+    ;; (run* [q] (fresh [x] (national-symbol q x))) => (just "kiwi")
 
-    ;; (run* [q] (is-slower "girl" "cheetah")) =not=> empty?
+    ;; (run* [q] (is-able "aardvark" "swim")) =not=> empty?
 
-    ;; (run* [q] (national-symbol q _)) => (just "kiwi")
-
-    ;; aquatic -> can swim??
-    ;; (run* [q] (is-able-to "aardvark" "swim")) =not=> empty?
-
-    ;; (run* [q] (has-property q "ears" true)) => (just "elephant")
+    (run* [q] (fresh [x] (is-smth q "ear" x))) => (just "elephant")
 
     ;; (run* [q]
     ;;       (has-property "bear" "fins" true)
     ;;       (has-property "dogfish" "fins" true)) => empty
 
-    (run* [q] (has-property "crayfish" "legs" q)) => (just 6)
-    (run* [q] (has-property "deer" "venomous" false)) =not=> empty?
     ;; (run* [q] (has-property "deer" "poisonous" false)) =not=> empty?
 
-    ;; (run* [q] (is-able-to q "meoew")) => (just "girl" "pussycat")
+    (run* [q] (is-able q "meow")) => (just "girl" "pussycat")
 
     ;; (run* [q] (is-able-to "elephant" "lay-eggs" false)) =not=> empty?
 
-    ;; (run* [q] (is-able-to "girl" "meow")) =>
+    (run* [q] (is-able "girl" "meow")) =not=> empty?
+
+    ;; Others
+    (run* [q] (is-smth "aardvark" "swimmer" "good")) =not=> empty?
+    (run* [q] (is-smth "cheetah" "land animal" "fastest")) =not=> empty?
+
+
+    ;; own_facts.txt
+    ;; (run* [q] (conde
+    ;;             [(== q "crayfish") (is-smaller q "dolphin")]
+    ;;             [(== q "dolphin") (is-smaller q "crayfish")])) => (just "crayfish")
+
+    ;; (run* [q] (is-slower "girl" "cheetah")) =not=> empty?
 
     )
 

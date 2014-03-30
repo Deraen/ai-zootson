@@ -3,7 +3,17 @@
   (:require [midje.sweet :refer :all]
             [clojure.core.logic :refer :all]
             [clojure.core.logic.pldb :as pldb]
-            [ai-zootson.facts :refer :all]))
+            [ai-zootson.facts :refer :all]
+            [ai-zootson.domain :refer :all]))
+
+(fact singularize
+  (tabular
+    (fact (singularize ?plural) => ?singular)
+    ?plural ?singular
+    "octopuses" "octopus"
+    "vampires" "vampire"
+    "boys" "boy"
+    "girls" "girl"))
 
 (fact parse-fact
   (tabular
@@ -37,7 +47,7 @@
     "An elephants has a trunk."
     [[:SUBJECT [:NOUN "elephants"]]
      [:VERB "has"]
-     [:OBJECT [:NOUN "trunk"]]]
+     [:OBJECT [:simple [:NOUN "trunk"]]]]
 
     "Elephants have big ears."
     [[:SUBJECT [:NOUN "elephants"]]
@@ -57,7 +67,7 @@
     "Kiwis are nocturnal birds."
     [[:SUBJECT [:NOUN "kiwis"]]
      [:VERB "are"]
-     [:OBJECT [:NOUN "nocturnal" "birds"]]]
+     [:OBJECT [:simple [:NOUN "nocturnal" "birds"]]]]
 
     "The kiwi is a national symbol of New Zealand."
     [[:SUBJECT [:NOUN "kiwi"]]
@@ -77,12 +87,12 @@
     "Mongooses feed on insects, worms, snakes, and birds, etc."
     [[:SUBJECT [:NOUN "mongooses"]]
      [:VERB "feed"]
-     [:OBJECT [:prep "on"] [:NOUN "insects"] [:NOUN "worms"] [:NOUN "snakes"] [:NOUN "birds"] [:NOUN "etc"]]]
+     [:OBJECT [:prep "on" [:NOUN "insects"] [:NOUN "worms"] [:NOUN "snakes"] [:NOUN "birds"] [:NOUN "etc"]]]]
 
     "Octopuses are intelligent."
     [[:SUBJECT [:NOUN "octopuses"]]
      [:VERB "are"]
-     [:OBJECT [:NOUN "intelligent"]]]
+     [:OBJECT [:simple [:NOUN "intelligent"]]]]
 
     "Octopuses are more intelligent than worms."
     [[:SUBJECT [:NOUN "octopuses"]]
@@ -92,12 +102,12 @@
     "Vampires and fruitbats are bats."
     [[:SUBJECT [:NOUN "vampires"] [:NOUN "fruitbats"]]
      [:VERB "are"]
-     [:OBJECT [:NOUN "bats"]]]
+     [:OBJECT [:simple [:NOUN "bats"]]]]
 
     "Pussycats and girls can meow."
     [[:SUBJECT [:NOUN "pussycats"] [:NOUN "girls"]]
      [:VERB "can"]
-     [:OBJECT [:NOUN "meow"]]]
+     [:OBJECT [:simple [:NOUN "meow"]]]]
 
     ;; Own facts
     "Crayfish are smaller than dolphins."
@@ -115,4 +125,77 @@
     [[:SUBJECT [:NOUN "python"]]
      [:VERB "is"]
      [:OBJECT [:adj [:ADJ "bad"] [:NOUN "programming" "language"]]]]
+))
+
+(fact to-map
+  (to-map [[:SUBJECT [:NOUN "python"]]
+           [:VERB "is"]
+           [:OBJECT [:adj [:ADJ "bad"] [:NOUN "programming" "language"]]]]) =>
+  {:SUBJECT [[:NOUN "python"]]
+   :VERB "is"
+   :OBJECT [:adj [:ADJ "bad"] [:NOUN "programming" "language"]]}
+  )
+
+(fact process-fact
+  (tabular
+    (fact (process-fact ?input) => ?result)
+    ?input ?result
+    {:SUBJECT [[:NOUN "pussycats"] [:NOUN "girls"]]
+     :VERB "can"
+     :OBJECT [:simple [:NOUN "meow"]]}
+    {:verb "can"
+     :subjects ["pussycat" "girl"]
+     :type :simple
+     :objects [[:NOUN "meow"]]}
+
+    ;; {:SUBJECT [[:NOUN "octopuses"]]
+    ;;  :VERB "are"
+    ;;  :OBJECT [:than "more" [:NOUN "intelligent"] [:NOUN "worms"]]}
+    ;; {:verb "are"
+    ;;  :type :than
+    ;;  :than "more"
+    ;;  :than-prop "intelligent"
+    ;;  :objects ["worms"]}
   ))
+
+(fact build-facts
+  (tabular
+    (fact (build-facts ?input) => ?result)
+    ?input ?result
+
+    {:verb "can"
+     :subjects ["pussycat" "girl"]
+     :type :simple
+     :objects ["meow"]}
+    [['is-able "pussycat" "meow"] ['is-able "girl" "meow"]]
+
+;;     {:verb "is"
+;;      :subjects ["kiwi"]
+;;      :type :conj
+;;      :objects ["national symbol" "of" "new zealand"]}
+;;     [["national-symbol" "kiwi" "new zealand"]]
+;;
+    {:verb "are"
+     :type :than
+     :subject ["cheetah"]
+     :objects ["faster" "girl"]}
+    [['is-more "cheetah" "girl" "faster"]]
+
+    {:verb "are"
+     :type :than
+     :subjects ["octopuses"]
+     :objects ["more" "intelligent" "worm"]}
+    [['is-more "octopus" "worm" "intelligent"]]
+
+    {:verb "is"
+     :subjects ["male african elephant"]
+     :type :adj
+     :objects ["largest" "living terrestial animal"]}
+    [['is-smth "male african elephant" "living terrestial animal" "largest"]]
+    ))
+
+(fact add-facts
+  (let [db (pldb/db)
+        db (add-facts db [['is-able "pussycat" "meow"] ['is-able "girl" "meow"]])]
+    (pldb/with-db db
+      (run* [q] (is-able q "meow")) => (just "girl" "pussycat"))))

@@ -18,16 +18,20 @@
 
 (pldb/db-rel lives-in animal continent value)
 (pldb/db-rel has-property animal property value)
-;; (pldb/db-rel eats animal food)
-;; (pldb/db-rel is-able-to thing)
+(pldb/db-rel eats animal food)
+(pldb/db-rel is-able animal thing)
+(pldb/db-rel is-smth animal thing)
+(pldb/db-rel is-smth animal thing adj)
 (pldb/db-rel national-symbol a c)
-
 
 ;; Superlatives
 (pldb/db-rel is-faster a1 a2)
+(pldb/db-rel is-more a1 a2 prop)
 (defn is-slower [x y]
   "Complement of is-faster"
   (is-faster y x))
+(defn is-less [x y prop]
+  (is-more y x prop))
 
 ;; Alias
 (pldb/db-rel is-alias a1 a2)
@@ -56,10 +60,11 @@
            [(is-alias z x) (is-alias z y)])))
 
 ;; Checkers?
-(defn check-fact [animal fact]
+(defn check-fact [animal fact & rest]
   (conde
     [(has-property animal fact true)]
     [(classify animal fact)]
-    ;; [(eats animal fact)]
-    ;; [(is-able-to animal fact)]
+    [(eats animal fact)]
+    [(is-able animal fact)]
+    [(apply is-smth animal fact rest)]
     ))
