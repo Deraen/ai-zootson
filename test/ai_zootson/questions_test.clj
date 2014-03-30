@@ -5,29 +5,95 @@
             [clojure.core.logic :refer :all]
             [clojure.core.logic.pldb :as pldb]))
 
-(fact is-location-q?
-  (is-location-q? #{"where" "foo"}) => #{"where"}
-  (is-location-q? #{"foo" "bar"}) => nil)
+(facts parse-questions
+  (tabular
+    (fact answer-question
+      (parse-question ?line) => ?expected)
+    ?line                                               ?expected
+    "Where do anteaters live?"
+    [:where [:animal [:NOUN "anteater"]]]
 
-(fact find-qword
-  (find-qwords {:words #{"where" "do" "anteaters" "live"}}) => {:qtype :location :words #{"do" "anteaters" "live"} :q #{"where"}}
-  (find-qwords {:words #{"how" "many" "reptiles" "do" "you" "know"}}) => {:qtype :numeric :q #{"how" "many"} :words #{"reptiles" "do" "you" "know"}}
-  (find-qwords {:words #{"is" "it" "true" "that" "elephants" "do" "not" "lay" "eggs"}}) => (contains {:qtype :boolean :q #{"is" "it" "true"}}))
+    "How many reptiles do you know?"
+    [:how-many [:what-kind [:ADJ "reptiles"]]]
 
-(def sample-facts [{:subject "anteater" :facts [{:property "live" :value "africa"}
-                                                {:property "live" :value "europe" :not true}
-                                                {:property "hair" :value true}
-                                                {:property "legs" :value 5}]}
-                   {:subject "africa"}
-                   {:subject "europe"}])
+    "What hairy reptiles do you know?"
+    [:what [:what-kind [:ADJ "hairy"]] [:animal-class "reptile"]]
 
-(fact parse-question
-  (parse-question sample-facts "How many legs does anteater have?") => {:q #{"how" "many"} :qtype :numeric :subjects #{"anteater"} :facts #{"legs"} :words #{"does" "have"}})
+    "Mention a bat that lives in South America."
+    [:mention [:what-kind [:ADJ "bat"]] [:lives-in [:NOUN "south america"]]]
 
-(fact get-fact-values
-  (get-fact-values sample-facts {:q #{"where"} :subjects #{"anteater"} :facts #{"live"} :words #{"do"}}) => ["africa" {:not "europe"}])
+    "Which animal eats worms?"
+    [:which [:does-smth "eats" [:food [:NOUN "worm"]]]]
 
-(fact answer-question
-  (answer-question sample-facts "Where do anteaters live?") => "Africa"
-  (answer-question sample-facts "How many legs does an anteater have?") => "5")
+    "What kind of a tail does a lynx have?"
+    [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "lynx"]]]
 
+;;     "Which is smaller: dolphin or crayfish?"
+;;     []
+;;
+;;     "Is a lobster smaller than a crayfish?"
+;;     []
+;;
+;;     "Are girls slower than a cheetah?"
+;;     []
+;;
+;;     "Mention an animal that is a national symbol. "
+;;     []
+;;
+;;     "Can aardvarks swim?"
+;;     []
+;;
+;;     "Which animal has ears?"
+;;     []
+;;
+;;     "Do bears and dogfish have fins?"
+;;     [:do-have [:]]
+
+    "How many legs does a crayfish have?"
+    [:how-many [:what-kind [:ADJ "legs"]] [:animal [:NOUN "crayfish"]]]
+
+    "Is it true that deer are not poisonous?"
+    [:boolean [:boolean-type "true"] [:animal [:NOUN "deer"]] [:arent [:ADJ "poisonous"]]]
+
+    "Which animals are able to meow?"
+    [:which [:are-able [:NOUN "meow"]]]
+
+    "Is it true that elephants do not lay eggs?"
+    [:boolean [:boolean-type "true"] [:animal [:NOUN "elephant"]] [:do-not [:ADJ "eggs"]]]
+
+    "Is it false that girls cannot meow?"
+    [:boolean [:boolean-type "false"] [:animal [:NOUN "girl"]] [:cannot [:ADJ "meow"]]]
+    ))
+
+(fact process-question
+  (tabular
+    (fact (process-question ?input) => ?output)
+    ?input ?output
+
+    [:where [:animal [:NOUN "anteater"]]]
+    {:type :where
+     :animal "anteater"}
+
+    [:boolean [:boolean-type "true"] [:animal [:NOUN "elephant"]] [:do-not [:ADJ "eggs"]]]
+    {:type :boolean
+     :boolean-type "true"
+     :animal "elephant"
+     ;; lay eggs, smash eggs, eat eags... what ever
+     :do-not "eggs"}
+    ))
+
+(fact build-query
+  (tabular
+    (fact (build-query ?input) => ?output)
+    ?input ?output
+
+    {:type :where
+     :animal "anteater"}
+    [['lives-in "anteater" :q]]
+
+    {:type :mention
+     :what-kind "bat"
+     :lives-in "south america"}
+    [['check-fact :q "bat"]
+     ['lives-in :q "south america"]]
+    ))

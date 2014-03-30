@@ -30,11 +30,9 @@
      eats = NOUNS space <'feed on' | 'eat'> space NOUNS
      is-smth-of = NOUNS space <'is' | 'are'> space NOUN space <'of'> space NOUN
 
-     <word> = #'\\p{L}+'
      <letter> = #'\\p{L}'
      <space> = <#'\\s'>
      <space-visible> = #'\\s'
-     <words> = word space? | word space words
 
      <articles> = <('a' | 'an' | 'the')>
      <conjunctions> = ('and' | 'than' | 'of' | 'for' | 'as')
@@ -49,20 +47,11 @@
      TERMINATOR = '.' | '?' | '!'
      "))
 
-(defn fix-words [parsed]
-  (map (fn [i]
-         (if (sequential? i)
-           (cond
-             (= (get i 0) :NOUN) [:NOUN (clojure.string/join "" (rest i))]
-             :else (fix-words i))
-           i))
-       parsed))
-
 (defn parse-fact-sentence [fact-str]
   (->> fact-str
        clojure.string/lower-case
        fact-language
-       fix-words
+       sentence/fix-words
        first
        ))
 
@@ -82,9 +71,6 @@
         ))
     [[]] parsed))
 
-(defn flatten-facts [facts]
-  (map flatten-fact facts))
-
 (defn flatten-fact [fact]
   (map (fn [i]
          (if (sequential? i)
@@ -92,12 +78,14 @@
            i))
        fact))
 
+(defn flatten-facts [facts]
+  (map flatten-fact facts))
+
 (defn add-facts [db facts]
   (reduce (fn [db [fact animal & rest :as full]]
             ;; In case animal is alias, use the real animal
             (let [animal (real-animal db animal)
                   fact (symbol (name fact))]
-              (println full)
               (cond
                 (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
                 (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))
