@@ -17,12 +17,12 @@
 (pldb/db-rel classify animal rank)
 
 (pldb/db-rel lives-in animal continent value)
-(pldb/db-rel has-property animal property value)
+(pldb/db-rel has-prop animal property)
+(pldb/db-rel some-kind-prop animal property value)
 (pldb/db-rel eats animal food)
 (pldb/db-rel is-able animal thing)
 (pldb/db-rel is-smth animal thing)
-(pldb/db-rel is-smth animal thing adj)
-(pldb/db-rel national-symbol a c)
+(pldb/db-rel is-smth-of animal thing adj)
 
 ;; Superlatives
 (pldb/db-rel is-faster a1 a2)
@@ -40,15 +40,6 @@
   (conde
     [(animal name) (== q name)]
     [(is-alias q name)]))
-
-(defn add-alias [db target alias-name]
-  "Add is-alias fact but makes sure target is a real animal insteaf of another alias.
-   So instead of alias2 -> alias1 -> animal we get alias2 -> animal & alias1 -> animal"
-  (if-let [[target] (run* [q]
-                          (some-animal q target))]
-    (-> db
-        (pldb/db-fact is-alias target alias-name))
-    db))
 
 (defn same-animal [x y]
   "Tells if two names correspond to the same animal.

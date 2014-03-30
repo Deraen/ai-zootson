@@ -14,137 +14,98 @@
    is just to separate multi word nouns etc.
    - One fact in examples ends in trailing whitespace so allow spaces at the end of sentence."
   (insta/parser
-    "<S> = SUBJECT VERB OBJECT <TERMINATOR?> space* | SUBJECT VERB <TERMINATOR?> space*
+    "<S> = (is-alias | is-alias-reverse | is-smth | is-more | animal | has-prop | some-kind-prop | is-able | eats | is-smth-of) <TERMINATOR? space*>
+
+     (* these names are directly transleted to core.logic relations *)
+     is-alias = NOUN space <'is' space (articles space)? ('alias' | 'synonym')> space <'for'> space NOUN
+     (* except in reverse case... *)
+     is-alias-reverse = NOUN space <'is also known as'> space NOUN
+
+     is-smth = NOUNS space <('is' | 'are') space (articles space)?> (ADJ space)? NOUN (space ADJ)?
+     is-more = NOUN space <('is' | 'are') (space 'more')?> space ADJ space <'than'> space NOUN
+     animal = NOUNS space <'exist'>
+     has-prop = NOUNS space <'has' | 'have'> space NOUN
+     some-kind-prop = NOUNS space <'has' | 'have'> space ADJ space NOUN
+     is-able = NOUNS space <'can'> space NOUN
+     eats = NOUNS space <'feed on' | 'eat'> space NOUNS
+     is-smth-of = NOUNS space <'is' | 'are'> space NOUN space <'of'> space NOUN
+
      <word> = #'\\p{L}+'
+     <letter> = #'\\p{L}'
      <space> = <#'\\s'>
+     <space-visible> = #'\\s'
      <words> = word space? | word space words
 
      <articles> = <('a' | 'an' | 'the')>
      <conjunctions> = ('and' | 'than' | 'of' | 'for' | 'as')
 
-     <prepwords> = 'on'
+     (* strip plural... mongoose_s, octopus_es *)
+     <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+ ('us' <'es'> | 'ose' <'s'> | <'s'>)?
+     NOUN = <[articles space]> noun-word (space-visible noun-word)*
+     NOUNS = NOUN ((<','> [space <'and'>] | space <'and'>) space (<'etc'> | NOUN))*
 
-     <noun-word> = !(articles space) !(conjunctions space) !('on' space) word
-     NOUN = <[articles space]> noun-word (space noun-word)*
-     <NOUNS> = NOUN ((<','> [space <'and'>] | space <'and'>) space NOUN)* space?
-     SUBJECT = NOUNS
-     VERB = ('is' | 'are' | 'have' | 'has' | 'can' | 'feed' | 'exist') space?
+     ADJ = 'short' <'er' | 'est'>? | 'big' <'ger'>? | 'biggest' | 'small' <'er'>? | 'smallest' | 'good' | 'large' <'r'>? | 'bad' | 'fast' <'er'>? | 'fastest' | 'largest' | 'nocturnal' | 'intelligent'
 
-     (* ADJ = !(articles space) word *)
-     ADJ = 'short' | 'big' | 'smaller' | 'good' | 'largest' | 'fastest' | 'bad'
-
-     conj = [ADJ space] NOUN space conjunctions space [ADJ space] NOUN
-     adj = <[articles space]> ADJ space NOUNS
-     than = [('more') space] NOUN space <'than'> space NOUN
-     prep = prepwords space NOUNS
-     simple = NOUNS
-
-     OBJECT = conj | adj | than | prep | simple
      TERMINATOR = '.' | '?' | '!'
      "))
+
+(defn fix-words [parsed]
+  (map (fn [i]
+         (if (sequential? i)
+           (cond
+             (= (get i 0) :NOUN) [:NOUN (clojure.string/join "" (rest i))]
+             :else (fix-words i))
+           i))
+       parsed))
 
 (defn parse-fact-sentence [fact-str]
   (->> fact-str
        clojure.string/lower-case
        fact-language
+       fix-words
+       first
        ))
 
-(defn to-map [parsed-list]
-  (reduce (fn [acc [k & rest]]
-            (if (= k :SUBJECT)
-              (assoc acc k rest)
-              (apply assoc acc k rest)))
-          {} parsed-list))
-
-(defn singularize [string]
-  (apply clojure.string/replace string
-         (cond
-           (.endsWith string "ses") [#"ses$" "s"]
-           :else [#"s$" ""])))
-
-(defn process-words [words]
-  (singularize (clojure.string/join " " words)))
-
-(defn process-fact [{objects :OBJECT verb :VERB subjects :SUBJECT :as parsed}]
-  (let [; All subjects should be NOUN so type doesn't matter
-        ; Join multi word nouns into one string and strip "s" from plural words
-        subjects (map (fn [[_ & words]] (process-words words)) subjects)
-        ; First property tells what "type" sentence is (conj, adj, than, prep, simple...)
-        sentence-type (first objects)
-        ; Get "real objects"
-        objects (rest objects)
-        objects (map (fn [object]
-                       (if (sequential? object)
-                         [(first object) (process-words (rest object))]
-                         object))
-                     objects)
-        ]
-    {:verb verb
-     :objects objects
-     :subjects subjects
-     :type sentence-type}))
-
-(defn process2-fact [{:keys [verb [f s & _ :as objects] subjects type] :as processed}]
-  (cond
-    (and (= type :than)) processed
-    :else (assoc processed :objects (map (fn [[_ foo]] foo) objects))))
-
-(def verbs-to-facts {"can" 'is-able
-                     "has" 'has-property
-                     "feed" 'eats
-                     "are" 'is-smth
-                     "is" 'is-smth})
-
-;; Fact, reverse
-(def than-map {"faster" ['is-faster false]
-               "slower" ['is-faster true]
-               "more" ['is-more false]
-               "less" ['is-more true]})
-
-(def a {:simple (fn [verb subject objects]
-                  (map (fn [object]
-                         [(get verbs-to-facts verb) subject object])
-                       objects))
-        :adj (fn [verb subject [adj & objects]]
-               (map (fn [object]
-                      ['is-smth subject object adj])
-                    objects))
-        :than (fn [verb subject [than foo & rst]]
-                ;; (println than)
-                ;; (println foo)
-                nil)
-        :conj (fn [verb subject object]
-                nil)
-        :prep (fn [verb subject object]
-                nil)
-        nil (fn [verb subject]
-              nil)
-        })
-
-(defn build-facts [{:keys [subjects type objects verb] :as processed}]
+(defn expand [parsed]
   (reduce
-    (fn [acc subject]
-      (if type
-        (concat acc ((type a) verb subject objects))
-        acc))
-    [] subjects))
+    (fn [acc i]
+      (cond
+        (sequential? i) (let [[f & foo] i]
+                          (reduce
+                            (fn [acc2 bar]
+                              (reduce
+                                (fn [acc2 lol]
+                                  (conj acc2 (conj lol bar)))
+                                acc2 acc))
+                            [] foo))
+        :else (map #(conj % i) acc)
+        ))
+    [[]] parsed))
+
+  ;; (if (= subject-type :NOUNS)
+  ;;   (reduce (fn [acc subject]
+  ;;             (conj acc (apply vector sentence-type subject rst)))
+  ;;           [] real-subjects)
+  ;;   [parsed]
+  ;; ))
 
 (defn add-facts [db facts]
   (reduce (fn [db [fact target & rest]]
             ;; In case target is alias, use the real target
             (let [[real-target] (pldb/with-db db (run* [q] (some-animal q target)))
-                  real-target (or real-target target)]
-              (println fact real-target rest)
-              (apply pldb/db-fact db @(resolve fact) real-target rest)))
+                  real-target (or real-target target)
+                  fact (symbol (name fact))]
+              (println fact)
+              (cond
+                (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) real-target)
+                :else (apply pldb/db-fact db @(resolve fact) real-target rest)
+                )))
           db (filter #(not (nil? %)) facts)))
 
 (defn read-facts [db data]
   (reduce (fn [db line]
             (->> line
                  (parse-fact-sentence)
-                 (to-map)
-                 (process-fact)
-                 (process2-fact)
-                 (build-facts)
+                 (expand)
                  (add-facts db)))
           db (line-seq data)))
