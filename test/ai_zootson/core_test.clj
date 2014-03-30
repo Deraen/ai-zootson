@@ -5,6 +5,7 @@
             [clojure.core.logic.pldb :as pldb]
             [ai-zootson.core :refer :all]
             [ai-zootson.domain :refer :all]
+            [ai-zootson.questions :refer :all]
             ))
 
 (fact init
@@ -22,7 +23,7 @@
     ;; From facts.txt
     ;; Examples
     (run* [q] (fresh [x] (some-animal "anteater" x) (lives-in x q true))) => (just "africa")
-    (run* [q] (lives-in q "south-america" true) (is-smth q "bat")) => (just "vampire")
+    (run* [q] (lives-in q "south america" true) (is-smth q "bat")) => (just "vampire")
     (run* [q] (eats q "worm")) => (just "mongoose")
     (run* [q] (has-prop "lynx" "tail" q)) => (contains "short")
 
@@ -51,42 +52,41 @@
 
 
     ;; own_facts.txt
-    (run* [q] (conde
-                [(is-more q "dolphin" "small")]
-                [(is-more q "crayfish" "small")])) => (just "crayfish")
+;;     (run* [q] (conde
+;;                 [(is-more q "dolphin" "small")]
+;;                 [(is-more q "crayfish" "small")])) => (just "crayfish")
+;;
+;;     (run* [q] (is-better "girl" "cheetah" "slow")) =not=> empty?
 
-    (run* [q] (is-better "girl" "cheetah" "slow")) =not=> empty?
+    ))
 
-    )
+(facts "questions"
+  (let [db (read-files)]
+    (tabular
+      (fact answer-question
+        (answer-question db ?line) => ?expected)
+      ?line                                               ?expected
+      "Where do aardvarks live?"                          "Africa"
 
-  #_(facts "questions"
-      (tabular
-        (fact answer-question
-          (answer-question @ai-facts ?line) => ?expected)
-        ?line                                               ?expected
-        "Where do aardvarks live?"                          "Africa"
+      ;; Sample q
+      "Where do anteaters live?"                          "Africa"
+      ;; "How many reptiles do you know?"                    "5"
+      ;; "What hairy reptiles do you know?"               "none"
 
-        ;; Sample q
-        ;; "Where do anteaters live?"                          "Africa"
-        "How many reptiles do you know?"                    "5"
-        "What hairy reptiles do you know?"               "none"
+      ;; "Mention a bat that lives in South America."     "vampire"
 
-        ;; "Mention a bat that lives in South America."     "vampire"
-
-        ;; "Which animal eats worms?"                       "mongoose"
-        ;; "What kind of a tail does a lynx have?"          "short"
-        ;; "Which is smaller: dolphin or crayfish?"         "crayfish"
-        ;; "Is a lobster smaller than a crayfish?"          "no"
-        ;; "Are girls slower than a cheetah?"               "yes"
-        ;; "Mention an animal that is a national symbol. "  "kiwi"
-        ;; "Can aardvarks swim?"                            "yes"
-        ;; "Which animal has ears?"                         "elephant"
-        ;; "Do bears and dogfish have fins?"                "no"
-        ;; "How many legs does a crayfish have?"            "6"
-        ;; "Is it true that deer are not poisonous?"        "yes"
-        ;; "Which animals are able to meow?"                "girl, pussycat"
-        ;; "Is it true that elephants do not lay eggs?"     "yes"
-        ;; "Is it false that girls cannot meow?"            "yes"
-        ))
-  )
-
+      ;; "Which animal eats worms?"                       "mongoose"
+      ;; "What kind of a tail does a lynx have?"          "short"
+      ;; "Which is smaller: dolphin or crayfish?"         "crayfish"
+      ;; "Is a lobster smaller than a crayfish?"          "no"
+      ;; "Are girls slower than a cheetah?"               "yes"
+      ;; "Mention an animal that is a national symbol. "  "kiwi"
+      ;; "Can aardvarks swim?"                            "yes"
+      ;; "Which animal has ears?"                         "elephant"
+      ;; "Do bears and dogfish have fins?"                "no"
+      ;; "How many legs does a crayfish have?"            "6"
+      ;; "Is it true that deer are not poisonous?"        "yes"
+      ;; "Which animals are able to meow?"                "girl, pussycat"
+      ;; "Is it true that elephants do not lay eggs?"     "yes"
+      ;; "Is it false that girls cannot meow?"            "yes"
+      )))

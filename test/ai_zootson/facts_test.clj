@@ -6,15 +6,6 @@
             [ai-zootson.facts :refer :all]
             [ai-zootson.domain :refer :all]))
 
-(fact singularize
-  (tabular
-    (fact (singularize ?plural) => ?singular)
-    ?plural ?singular
-    "octopuses" "octopus"
-    "vampires" "vampire"
-    "boys" "boy"
-    "girls" "girl"))
-
 (fact parse-fact
   (tabular
     (fact (parse-fact-sentence ?line) => ?expected)
@@ -95,9 +86,3 @@
      [:eats [:NOUN "foo"] [:NOUN "worm"]]]
     :in-any-order)
   )
-
-#_(fact add-facts
-  (let [db (pldb/db)
-        db (add-facts db [['is-able "pussycat" "meow"] ['is-able "girl" "meow"]])]
-    (pldb/with-db db
-      (run* [q] (is-able q "meow")) => (just "girl" "pussycat"))))

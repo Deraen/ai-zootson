@@ -1,90 +1,113 @@
 (ns ai-zootson.questions
-  (:require [slingshot.slingshot :refer [throw+]]
+  (:refer-clojure :exclude [==])
+  (:require [instaparse.core :as insta]
+            [slingshot.slingshot :refer [try+ throw+]]
+            [clojure.core.logic :refer :all]
             [ai-zootson.util :refer :all]
+            [ai-zootson.domain :refer :all]
             [ai-zootson.sentence :as sentence]))
 
-#_(def question-language
-  (insta/parser (clojure.java.io/resource "questions.bnf")))
+(def question-language
+  (insta/parser
+    "<S> = (where | how-many | what | mention | which | what-kind-of | boolean) <TERMINATOR? space*>
 
-(defn some-set-contains [& col]
-  (fn [words]
-    "Returns either set of qwords which were found, or nil"
-    (some (fn [qwords]
-            (if (clojure.set/subset? qwords words)
-              qwords
-              nil)) col)))
+     animal = NOUN
+     what-kind = ADJ
+     animal-class = ('reptile' | 'mammal' | 'bird' | 'amphibian' | 'insect' | 'invertebrate') <'s'>? | 'fish' <'es'>?
+     lives-in = <'that lives in'> space NOUN
 
-(def is-location-q? (some-set-contains #{"where"}))
-(def is-boolean-q? (some-set-contains #{"is" "it" "true"} #{"is" "it" "false"} #{"can"} #{"do" "have"}))
-(def is-numeric-q? (some-set-contains #{"how" "many"}))
-(def is-generic-q? (some-set-contains #{"what"}))
-(def is-comp-q? (some-set-contains #{"which" "is" "smaller"} #{"which" "is" "larger"}
-                                   #{"which" "is" "faster"} #{"which" "is" "slower"}))
+     food = NOUN
 
-(defn format-continents [facts]
+     where = <'where do'> space animal space <'live'>
+
+     legs = <'does'> space animal space <'have'>
+     how-many = <'how many'> space what-kind space <(('do' | 'does') space)>? (animal space)? <'have' | 'you know'>
+
+     what = <'what'> space what-kind (space animal-class)? space <('do' space)? 'you know'>
+     mention = <'mention'> space what-kind space lives-in
+
+     does-smth = 'eats' space food
+     are-able = <'are able to'> space NOUN
+     which = <'which' (space 'animal' 's'?)?> space (does-smth | are-able)
+
+     what-kind-of = <'what kind of'> space what-kind space <'does'> space animal space <'have'>
+
+     verb = word
+     do = <'do'> space <verb> space ADJ
+     can = <'can'> space ADJ
+     are = <'are'> space ADJ
+     do-not = <'do not' | 'don\\'t'> space <verb> space ADJ
+     cannot = <'cannot'> space ADJ
+     arent = <'are not' | 'aren\\'t'> space ADJ
+
+     boolean-type = 'true' | 'false'
+     boolean = <'is it'> space boolean-type space <'that'> space animal space (do | can | are | do-not | cannot | arent)
+
+     <letter> = #'\\p{L}'
+     <space> = <#'\\s'>
+     <space-visible> = #'\\s'
+     <word> = #'\\p{L}+'
+
+     <articles> = <('a' | 'an' | 'the')>
+     <conjunctions> = ('and' | 'than' | 'of' | 'for' | 'as')
+
+     (* NOUN are not nouns nor are ADJ adjectives... what ever... *)
+     <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+ ('us' <'es'> | 'ose' <'s'> | <'s'>)?
+     NOUN = <[articles space]> noun-word (space-visible noun-word)*
+     ADJ = <[articles space]> letter+
+
+     TERMINATOR = '.' | '?' | '!'
+     "))
+
+(defn process-value [value]
   (cond
-    (not (empty? facts)) (clojure.string/capitalize (clojure.string/join "," (filter #(not (:not %)) facts)))
-    :else "nowhere"))
+    (and (sequential? value) (= (count value) 1)) (first value)
+    (sequential? value) (let [[f foo :as bar] value]
+                          (if (#{:NOUN :ADJ} f)
+                            foo
+                            bar))
+    :else value))
 
-(defn format-boolean [facts]
-    (empty? facts))
+(defn process-question [[type & rest]]
+  (assoc
+    (reduce (fn [acc [f foo]]
+              (assoc acc f (process-value foo)))
+            {} rest)
+    :type type))
 
-(defn format-numeric [facts]
-  (str (if (= (count facts) 1)
-    (first facts)
-    (count facts))))
 
-(defn format-general [facts]
-  (if-not (empty facts)
-    (clojure.string/join "," facts)
-    "none"))
-
-(defn format-comp [facts]
-  nil)
-
-(def questions {:location [is-location-q? format-continents]
-                :boolean  [is-boolean-q? format-boolean]
-                :numeric [is-numeric-q? format-numeric]
-                :general [is-generic-q? format-general]
-                :comp [is-comp-q? format-comp]})
-
-(defn find-qwords [{:keys [words] :as input}]
-  (let [[qtype found-qwords] (some (fn [[k [qtest _]]]
-                                     (if-let [r (qtest words)]
-                                       [k r]
-                                       nil))
-                                   questions)]
-    (-> input
-        (assoc :q found-qwords
-               :qtype qtype)
-        (update-in [:words] clojure.set/difference found-qwords))))
-
-(defn parse-question [data question]
+(defn parse-question [question]
   (->> question
-       sentence/parse-line
-       ((fn [words] {:words words}))
-       find-qwords
-       (sentence/find-subjects data)
-       (sentence/find-facts data)))
+       clojure.string/lower-case
+       question-language
+       sentence/get-parsed
+       sentence/fix-words
+       ))
 
-(defn get-fact-values [data {:keys [subjects facts] :as parsed-q}]
-  (->> data
-       (filter (fn [{:keys [subject]}] (contains? subjects subject)))
-       (map :facts)
-       (apply concat)
-       (filter (fn [{:keys [property]}] (contains? facts property)))
-       (map (fn [{:keys [value not]}]
-              (if-not not
-                value
-                {:not value})))))
+(defn build-query [{:keys [animal] :as processed}]
+  (reduce (fn [acc [k v]]
+            (cond
+              (and (= k :type) (= v :where)) (conj acc (list 'lives-in animal :q))
+              (= k :lives-in) (conj acc (list 'lives-in (or animal :q) (or v :q)))
+              (= k :what-kind) (conj acc (list 'check-fact (or animal :q) (or v :q)))
+              :else acc
+              ))
+          '() processed))
 
-(defn format-answer [data {:keys [q qtype] :as parsed-question} fact-values]
-  (let [[_ format :as qdata] (qtype questions)]
-    (if qdata
-      (format fact-values)
+
+(defmacro run-foo [query]
+  `(run* [~'q] ~@query))
+
+(defn answer-question [db question-str]
+  (try+
+    (let [{:keys [type] :as processed}
+          (-> question-str
+              parse-question
+              process-question)
+
+          query (build-query processed)]
+      (println query)
+      ;; (run-foo query)
+      )
+    (catch Object _
       "no idea")))
-
-(defn answer-question [data question]
-  (let [parsed (parse-question data question)
-        fact-values (get-fact-values data parsed)]
-    (format-answer data parsed fact-values)))

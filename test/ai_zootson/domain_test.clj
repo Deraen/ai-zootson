@@ -35,13 +35,4 @@
       (run* [q] (== q "Lion")) => (just "Lion")
       (fact is-alias
         (run* [q] (some-animal q "Leijona")) => (just "Lion"))
-      (fact add-alias
-        (let [test-data (-> test-data
-                            (add-alias "Leijona" "Jellona"))]
-          (pldb/with-db test-data
-            (run* [q] (some-animal q "Jellona")) => (just "Lion")
-            (run* [q] (same-animal "Lion" "Jellona")) =not=> empty?
-            (run* [q] (same-animal "Jellona" "Leijona")) =not=> empty?
-            (run* [q] (same-animal "Lion" "FooBar")) => empty?
-            )))
       )))
