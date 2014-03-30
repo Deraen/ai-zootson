@@ -82,23 +82,27 @@
         ))
     [[]] parsed))
 
-  ;; (if (= subject-type :NOUNS)
-  ;;   (reduce (fn [acc subject]
-  ;;             (conj acc (apply vector sentence-type subject rst)))
-  ;;           [] real-subjects)
-  ;;   [parsed]
-  ;; ))
+(defn flatten-facts [facts]
+  (map flatten-fact facts))
+
+(defn flatten-fact [fact]
+  (map (fn [i]
+         (if (sequential? i)
+           (nth i 1)
+           i))
+       fact))
 
 (defn add-facts [db facts]
-  (reduce (fn [db [fact target & rest]]
-            ;; In case target is alias, use the real target
-            (let [[real-target] (pldb/with-db db (run* [q] (some-animal q target)))
-                  real-target (or real-target target)
+  (reduce (fn [db [fact animal & rest :as full]]
+            ;; In case animal is alias, use the real animal
+            (let [animal (real-animal db animal)
                   fact (symbol (name fact))]
-              (println fact)
+              (println full)
               (cond
-                (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) real-target)
-                :else (apply pldb/db-fact db @(resolve fact) real-target rest)
+                (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
+                (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))
+                (= fact 'is-more') (pldb/db-fact db is-more animal (real-animal db (nth rest 0) (nth rest 1)))
+                :else (apply pldb/db-fact db @(resolve fact) animal rest)
                 )))
           db (filter #(not (nil? %)) facts)))
 
@@ -107,5 +111,6 @@
             (->> line
                  (parse-fact-sentence)
                  (expand)
+                 (flatten-facts)
                  (add-facts db)))
           db (line-seq data)))
