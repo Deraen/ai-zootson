@@ -9,4 +9,5 @@
                  [slingshot "0.10.3"]]
   :main ai-zootson.core
   :aot [ai-zootson.core]
+  :plugins [[lein-midje "3.1.3"]]
   :profiles {:dev {:dependencies [[midje "1.6.2"]]}})
