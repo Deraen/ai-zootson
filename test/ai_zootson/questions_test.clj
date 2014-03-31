@@ -38,17 +38,17 @@
     "Are girls slower than a cheetah?"
     [:compare [:animal1 [:NOUN "girl"]] [:comp "slow"] [:animal2 [:NOUN "cheetah"]]]
 
-;;     "Mention an animal that is a national symbol. "
-;;     []
-;;
-;;     "Can aardvarks swim?"
-;;     []
-;;
-;;     "Which animal has ears?"
-;;     []
-;;
-;;     "Do bears and dogfish have fins?"
-;;     [:do-have [:]]
+    "Mention an animal that is a national symbol. "
+    [:mention [:is-smth [:NOUN "national symbol"]]]
+
+    "Can aardvarks swim?"
+    [:can-do [:animal [:NOUN "aardvark"]] [:verb "swim"]]
+
+    "Which animal has ears?"
+    [:which [:has-smth [:NOUN "ear"]]]
+
+    "Do bears and dogfish have fins?"
+    [:do-have [:animals [:NOUN "bear"] [:NOUN "dogfish"]] [:has-smth [:NOUN "fin"]]]
 
     "How many legs does a crayfish have?"
     [:how-many [:what-kind [:ADJ "legs"]] [:animal [:NOUN "crayfish"]]]
@@ -96,6 +96,12 @@
      :animal "elephant"
      ;; lay eggs, smash eggs, eat eags... what ever
      :do-not "eggs"}
+
+
+    [:do-have [:animals [:NOUN "bear"] [:NOUN "dogfish"]] [:has-smth [:NOUN "fin"]]]
+    {:type :do-have
+     :animals ["bear" "dogfish"]
+     :has-smth "fin"}
     ))
 
 ;; (fact suck-it

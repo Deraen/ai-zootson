@@ -71,17 +71,23 @@
            [(is-alias z x) (is-alias z y)])))
 
 ;; Checkers?
-(def prop-aliases {"poisonous" "venomous"})
-
 (defn check-fact [animal fact & rest]
-  (let [fact (get prop-aliases fact fact)]
-    (conde
-      [(apply has-prop animal fact rest)]
-      [(classify animal fact)]
-      [(eats animal fact)]
-      [(is-able animal fact)]
-      [(apply is-smth animal fact rest)]
-      )))
+  (conde
+    [(apply has-prop animal fact rest)]
+    [(has-prop animal fact true)]
+    [(classify animal fact)]
+    [(eats animal fact)]
+    [(is-able animal fact)]
+    [(apply is-smth animal fact rest)]
+    [(fresh [x]
+            (is-smth-of animal fact x))]
+    ))
+
+(defn check-has-smth [animal fact]
+  (conde
+    [(fresh [x]
+            (has-prop animal fact x))]
+    ))
 
 (defn can-animal [animal thing]
   (conde

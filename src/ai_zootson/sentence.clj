@@ -22,9 +22,11 @@
 
    <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+ (('us'|'h') <'es'> | 'se' <'s'> | ('d'|'s'|'m'|'l'|'t'|'r'|'k'|'ge'|'e'|'e'|'i'|'n')<'s'>)?
    NOUN = <[articles space]> noun-word (space-visible noun-word)*
-   NOUNS = NOUN ((<','> [space <'and'>] | space <'and'>) space (<'etc'> | NOUN))*
+   <HIDE-NOUNS> = NOUN ((<','> [space <'and'>] | space <'and'>) space (<'etc'> | NOUN))*
+   NOUNS = HIDE-NOUNS
 
    <ADJWORDS> = 'short' <'er' | 'est'>? | 'big' <'ger'>? | 'biggest' | 'small' <'er'>? | 'smallest' | 'good' | 'large' <'r'>? | 'bad' | 'fast' <'er'>? | 'fastest' | 'largest' | 'nocturnal' | 'slow' <'er'>?
+   animal-class = ('reptile' | 'mammal' | 'bird' | 'amphibian' | 'insect' | 'invertebrate') <'s'>? | 'fish' <'es'>?
 
    TERMINATOR = '.' | '?' | '!'
    ")
