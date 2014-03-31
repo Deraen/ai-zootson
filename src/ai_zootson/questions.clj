@@ -11,11 +11,10 @@
 
 (def question-language
   (insta/parser (str
-    "<S> = (where | how-many | what | mention | which | which-is | what-kind-of | boolean | compare) <TERMINATOR? space*>
+    "<S> = (where | how-many | what | mention | which | which-is | what-kind-of | boolean | compare | can-do | do-have) <TERMINATOR? space*>
 
      animal = NOUN
      what-kind = ADJ
-     animal-class = ('reptile' | 'mammal' | 'bird' | 'amphibian' | 'insect' | 'invertebrate') <'s'>? | 'fish' <'es'>?
      lives-in = <'that lives in'> space NOUN
 
      food = NOUN
@@ -26,11 +25,19 @@
      how-many = <'how many'> space (animal-class / what-kind) space <(('do' | 'does') space)>? (animal space)? <'have' | 'you know'>
 
      what = <'what'> space what-kind (space animal-class)? space <('do' space)? 'you know'>
-     mention = <'mention'> space what-kind space lives-in
+
+     is-smth = NOUN
+     mention = <'mention'> space (what-kind space lives-in | <'an animal that is'> space is-smth)
+
+     can-do = <'can'> space animal space verb
 
      does-smth = 'eats' space food
      are-able = <'are able to'> space NOUN
-     which = <'which' (space 'animal' 's'?)?> space (does-smth | are-able)
+     has-smth = <'has' | 'have'> space NOUN
+     which = <'which' (space 'animal' 's'?)?> space (does-smth | are-able | has-smth)
+
+     animals = HIDE-NOUNS
+     do-have = <'do'> space animals space has-smth
 
      less = 'less'
      more = 'more'
@@ -67,13 +74,14 @@
                             bar))
     :else value))
 
-(defn process-question [[type & rest]]
+(defn process-question [[type & rst]]
   (assoc
-    (reduce (fn [acc [f foo]]
+    (reduce (fn [acc [f foo :as bar]]
               (cond
                 (= f :boolean-type) (assoc acc f (= foo "true"))
+                (= f :animals) (assoc acc f (map process-value (rest bar)))
                 :else (assoc acc f (process-value foo))))
-            {} rest)
+            {} rst)
     :type type))
 
 
@@ -110,14 +118,23 @@
   (map not foo))
 
 (defn get-facts [db {:keys [type what-kind animal animal-class lives-in does-smth
-                            are-able
+                            are-able do-smth has-smth is-smth
                             cannot can do do-not are arent
                             animal1 animal2 comp
+                            animals
                             ] :as processed}]
   (cond
     ;; FIXME: Aliases only work with some question types...
-
     (= type :where) (run* [q] (check-lives-in animal q))
+
+    ;; If every animal fulfils some query...
+    (and animals) [(every? (fn [animal]
+                            (let [foo (-> processed
+                                          (assoc :animal animal)
+                                          (dissoc :animals))
+                                  bar (get-facts db foo)]
+                              (first bar)))
+                         animals)]
 
     (and what-kind animal-class) (run* [q] (classify q animal-class) (check-fact q what-kind))
     (and what-kind lives-in) (run* [q] (check-fact q what-kind) (check-lives-in q lives-in))
@@ -163,6 +180,10 @@
     animal-class (run* [q] (classify q animal-class))
     what-kind (run* [q] (check-fact q what-kind))
     does-smth (run* [q] (check-fact q does-smth))
+    is-smth (run* [q] (check-fact q is-smth))
+
+    has-smth (run* [q] (check-has-smth q has-smth))
+
     :else nil
     ))
 
@@ -191,7 +212,7 @@
                            f
                            "no idea"))
 
-    (= type :compare) (if (empty? facts)
+    (#{:compare :do-have} type) (if (empty? facts)
                         "no idea"
                         (if (first facts)
                           "yes"

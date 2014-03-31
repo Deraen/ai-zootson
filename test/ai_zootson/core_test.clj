@@ -66,7 +66,6 @@
     (run* [q] (is-less "cheetah" "girl" "speed")) => seq?
     (run* [q] (is-more "girl" "cheetah" "speed")) => empty?
     (run* [q] (is-more "cheetah" "girl" "speed")) => seq?
-
     ))
 
 (facts "questions"
@@ -87,9 +86,6 @@
 
       "What hairy reptiles do you know?" "none"
 
-      ;; FIXME:
-      ;; "What venomous reptiles do you know?" ""
-
       ;; variant of previous where own_facts contains an answer
       "What stupid reptiles do you know?"
       "seasnake"
@@ -97,18 +93,7 @@
       "Mention a bat that lives in South America."
       "vampire"
 
-      ;; "Which animal eats worms?"
-      ;; "mongoose"
-
       "What kind of a tail does a lynx have?" "short"
-
-      ;; "Mention an animal that is a national symbol. "  "kiwi"
-
-      ;; "Can aardvarks swim?"                            "yes"
-
-      ;; "Which animal has ears?"                         "elephant"
-
-      ;; "Do bears and dogfish have fins?"                "no"
 
       "How many legs does a crayfish have?"
       "6"
@@ -153,4 +138,16 @@
       "Which is more intelligent: octopus or worm" "octopus"
       "Which is less intelligent worm or octopus" "worm"
       "Which is more intelligent: girl or octopus" "girl"
+
+      "Do bears and dogfish have fins?" "no"
+
+      "Mention an animal that is a national symbol. " "kiwi"
+
+      ;; "Can aardvarks swim?" "yes"
+
+      "Which animal has ears?" "elephant"
+
+      "What venomous reptiles do you know?" "seasnake, pitviper"
+
+      ;; "Which animal eats worms?" "mongoose"
       )))
