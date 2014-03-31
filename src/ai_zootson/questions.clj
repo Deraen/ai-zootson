@@ -161,10 +161,14 @@
                          (if less
                            (run* [q]
                                  (conde [(== q animal1) (is-less q animal2 prop)]
-                                        [(== q animal2) (is-less q animal1 prop)]))
+                                        [(== q animal2) (is-less q animal1 prop)]
+                                        [(== q animal1) (is-least q prop)]
+                                        [(== q animal2) (is-least q prop)]))
                            (run* [q]
                                  (conde [(== q animal1) (is-more q animal2 prop)]
-                                        [(== q animal2) (is-more q animal1 prop)]))
+                                        [(== q animal2) (is-more q animal1 prop)]
+                                        [(== q animal1) (is-most q prop)]
+                                        [(== q animal2) (is-most q prop)]))
                            ))
 
     (= type :compare) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
@@ -175,10 +179,14 @@
                           (cond
                             (seq (run* [q] (is-less animal1 animal2 prop))) [true]
                             (seq (run* [q] (is-more animal1 animal2 prop))) [false]
+                            (seq (run* [q] (is-least animal1 prop))) [true]
+                            (seq (run* [q] (is-most animal2 prop))) [true]
                             :else [])
                           (cond
                             (seq (run* [q] (is-more animal1 animal2 prop))) [true]
                             (seq (run* [q] (is-less animal1 animal2 prop))) [false]
+                            (seq (run* [q] (is-most animal1 prop))) [true]
+                            (seq (run* [q] (is-least animal2 prop))) [true]
                             :else [])
                           ))
 
@@ -237,7 +245,7 @@
     ))
 
 (defn answer-question [db question-str]
-  ;; (try+
+  (try+
     (pldb/with-db db
       (let [{:keys [type animal] :as processed}
             (-> question-str
@@ -249,6 +257,6 @@
         (println processed)
         (println foo)
         (format-answer processed foo)))
-    ;; (catch Object _
-    ;;   "no idea (exception)"))
+    (catch Object _
+      "no idea (exception)"))
     )
