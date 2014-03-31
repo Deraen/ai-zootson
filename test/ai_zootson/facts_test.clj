@@ -51,7 +51,7 @@
     [:some-kind-prop [:NOUNS [:NOUN "lynx"]] [:ADJ "short"] [:NOUN "tail"]]
 
     "Mongooses feed on insects, worms, snakes, and birds, etc."
-    [:eats [:NOUNS [:NOUN "mongoose"]] [:NOUNS [:NOUN "insect"] [:NOUN "worm"] [:NOUN "snake"] [:NOUN "bird"]]]
+    [:do-smth [:NOUNS [:NOUN "mongoose"]] [:verb "feed"] [:NOUNS [:NOUN "insect"] [:NOUN "worm"] [:NOUN "snake"] [:NOUN "bird"]]]
 
     "Octopuses are intelligent."
     [:is-smth [:NOUNS [:NOUN "octopus"]] [:NOUN "intelligent"]]

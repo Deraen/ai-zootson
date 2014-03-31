@@ -26,15 +26,16 @@
 
      what = <'what'> space what-kind (space animal-class)? space <('do' space)? 'you know'>
 
-     is-smth = NOUN
-     mention = <'mention'> space (what-kind space lives-in | <'an animal that is'> space is-smth)
+     is-smth2 = NOUN
+     mention = <'mention'> space (what-kind space lives-in | <'an animal that is'> space is-smth2)
 
      can-do = <'can'> space animal space verb
 
-     does-smth = 'eats' space food
+     does-smth = word
+     does-target = NOUN
      are-able = <'are able to'> space NOUN
      has-smth = <'has' | 'have'> space NOUN
-     which = <'which' (space 'animal' 's'?)?> space (does-smth | are-able | has-smth)
+     which = <'which' (space 'animal' 's'?)?> space (are-able / has-smth / does-smth space does-target)
 
      animals = HIDE-NOUNS
      do-have = <'do'> space animals space has-smth
@@ -118,10 +119,11 @@
   (map not foo))
 
 (defn get-facts [db {:keys [type what-kind animal animal-class lives-in does-smth
-                            are-able do-smth has-smth is-smth
-                            cannot can do do-not are arent
+                            are-able has-smth is-smth2
+                            cannot can do do-not are arent verb
                             animal1 animal2 comp
                             animals
+                            does-smth does-target
                             ] :as processed}]
   (cond
     ;; FIXME: Aliases only work with some question types...
@@ -147,6 +149,10 @@
     (and animal cannot) [(if (empty? (run* [q] (is-able animal cannot))) true false)]
     (and animal arent) (reverse-foo (run* [q] (check-fact animal arent q)))
     (and animal do-not) (reverse-foo (run* [q] (check-fact animal do-not q)))
+
+    (and does-smth does-target) (let [verb (get {"eats" "feed"} does-smth does-smth)]
+                                  (println verb does-target)
+                                  (run* [q] (do-smth q verb does-target)))
 
     (= type :which-is) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
                              prop (or prop (:comp2 processed))
@@ -176,11 +182,16 @@
                             :else [])
                           ))
 
+    (and (= type :can-do) animal verb) (let [target (get {"swim" "swimmer"} verb verb)]
+                                         (run* [q]
+                                               (fresh [x]
+                                                      (is-smth animal x target))))
+
     are-able (run* [q] (is-able q are-able))
     animal-class (run* [q] (classify q animal-class))
     what-kind (run* [q] (check-fact q what-kind))
-    does-smth (run* [q] (check-fact q does-smth))
-    is-smth (run* [q] (check-fact q is-smth))
+    ;; does-smth (run* [q] (check-fact q does-smth))
+    is-smth2 (run* [q] (check-fact q is-smth2))
 
     has-smth (run* [q] (check-has-smth q has-smth))
 
@@ -217,6 +228,10 @@
                         (if (first facts)
                           "yes"
                           "no"))
+
+    (= type :can-do) (if (empty? facts)
+                       "no idea"
+                       "yes")
 
     :else "no idea (format)"
     ))
