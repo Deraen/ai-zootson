@@ -2,7 +2,9 @@
   (:refer-clojure :exclude [==])
   (:require [instaparse.core :as insta]
             [slingshot.slingshot :refer [try+ throw+]]
+            [clojure.tools.macro :refer [deftemplate]]
             [clojure.core.logic :refer :all]
+            [clojure.core.logic.pldb :as pldb]
             [ai-zootson.util :refer :all]
             [ai-zootson.domain :refer :all]
             [ai-zootson.sentence :as sentence]))
@@ -84,30 +86,39 @@
        sentence/fix-words
        ))
 
-(defn build-query [{:keys [animal] :as processed}]
-  (reduce (fn [acc [k v]]
-            (cond
-              (and (= k :type) (= v :where)) (conj acc (list 'lives-in animal :q))
-              (= k :lives-in) (conj acc (list 'lives-in (or animal :q) (or v :q)))
-              (= k :what-kind) (conj acc (list 'check-fact (or animal :q) (or v :q)))
-              :else acc
-              ))
-          '() processed))
-
-
-(defmacro run-foo [query]
-  `(run* [~'q] ~@query))
+;; (defn build-query [{:keys [animal] :as processed}]
+;;   (reduce (fn [acc [k v]]
+;;             (cond
+;;               (and (= k :type) (= v :where)) (conj acc (list :lives-in animal :q true))
+;;               (= k :lives-in) (conj acc (list :lives-in (or animal :q) (or v :q) true))
+;;               (= k :what-kind) (conj acc (list :check-fact (or animal :q) (or v :q)))
+;;               :else acc
+;;               ))
+;;           '() processed))
+;;
+;; (deftemplate suck-it [db facts]
+;;   (concat (list 'run-db* db '[q])
+;;           (map (fn [[& rest]]
+;;                  (let [rest (map (fn [i]
+;;                                    (if (keyword? i)
+;;                                      (symbol (name i))
+;;                                      i))
+;;                                  rest)]
+;;                    `(~@rest)))
+;;                facts)))
 
 (defn answer-question [db question-str]
   (try+
-    (let [{:keys [type] :as processed}
-          (-> question-str
-              parse-question
-              process-question)
-
-          query (build-query processed)]
-      (println query)
-      ;; (run-foo query)
-      )
+    (pldb/with-db db
+      (let [{:keys [type animal] :as processed}
+            (-> question-str
+                parse-question
+                process-question)
+            ]
+        (print processed)
+        (cond
+          (= type :where) (run* [q] (check-lives-in animal q))
+          :else "foo"
+          )))
     (catch Object _
-      "no idea")))
+      "no idea (exception)")))
