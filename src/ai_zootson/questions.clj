@@ -151,13 +151,13 @@
     (and animal do-not) (reverse-foo (run* [q] (check-fact animal do-not q)))
 
     (and does-smth does-target) (let [verb (get {"eats" "feed"} does-smth does-smth)]
-                                  (println verb does-target)
+                                  ;; (println verb does-target)
                                   (run* [q] (do-smth q verb does-target)))
 
     (= type :which-is) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
                              prop (or prop (:comp2 processed))
                              less (or less (:less processed))]
-                         (println prop less)
+                         ;; (println prop less)
                          (if less
                            (run* [q]
                                  (conde [(== q animal1) (is-less q animal2 prop)]
@@ -174,7 +174,7 @@
     (= type :compare) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
                              prop (or prop (:comp2 processed))
                              less (or less (:less processed))]
-                        (println prop less)
+                        ;; (println prop less)
                         (if less
                           (cond
                             (seq (run* [q] (is-less animal1 animal2 prop))) [true]
@@ -241,7 +241,7 @@
                        "no idea"
                        "yes")
 
-    :else "no idea (format)"
+    :else "no idea"
     ))
 
 (defn answer-question [db question-str]
@@ -254,9 +254,9 @@
 
             foo (get-facts db processed)
             ]
-        (println processed)
-        (println foo)
+        ;; (println processed)
+        ;; (println foo)
         (format-answer processed foo)))
     (catch Object _
-      "no idea (exception)"))
+      "no idea"))
     )

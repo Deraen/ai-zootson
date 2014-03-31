@@ -7,4 +7,5 @@
                  [org.clojure/tools.macro "0.1.2"]
                  [instaparse "1.2.16"]
                  [slingshot "0.10.3"]]
+  :main ai-zootson.core
   :profiles {:dev {:dependencies [[midje "1.6.2"]]}})
