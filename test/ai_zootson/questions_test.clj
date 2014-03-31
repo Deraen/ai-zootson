@@ -15,7 +15,7 @@
     [:where [:animal [:NOUN "anteater"]]]
 
     "How many reptiles do you know?"
-    [:how-many [:what-kind [:ADJ "reptiles"]]]
+    [:how-many [:animal-class "reptile"]]
 
     "What hairy reptiles do you know?"
     [:what [:what-kind [:ADJ "hairy"]] [:animal-class "reptile"]]
@@ -29,9 +29,9 @@
     "What kind of a tail does a lynx have?"
     [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "lynx"]]]
 
-;;     "Which is smaller: dolphin or crayfish?"
-;;     []
-;;
+    "Which is smaller: dolphin or crayfish?"
+    [:which-is [:what-kind [:ADJ "smaller"]] [:animal1 [:NOUN "dolphin"]] [:animal2 [:NOUN "crayfish"]]]
+
 ;;     "Is a lobster smaller than a crayfish?"
 ;;     []
 ;;
@@ -77,7 +77,7 @@
 
     [:boolean [:boolean-type "true"] [:animal [:NOUN "elephant"]] [:do-not [:ADJ "eggs"]]]
     {:type :boolean
-     :boolean-type "true"
+     :boolean-type true
      :animal "elephant"
      ;; lay eggs, smash eggs, eat eags... what ever
      :do-not "eggs"}
