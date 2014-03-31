@@ -63,10 +63,10 @@
                 [(== q "dolphin") (is-more q "crayfish" "size")]))
     => (just "dolphin")
 
-    (run* [q] (is-less "girl" "cheetah" "speed")) => seq?
-    (run* [q] (is-less "cheetah" "girl" "speed")) => seq?
-    (run* [q] (is-more "girl" "cheetah" "speed")) => empty?
-    (run* [q] (is-more "cheetah" "girl" "speed")) => seq?
+    (run* [q] (is-less "girl" "boy" "speed")) => seq?
+    (run* [q] (is-less "boy" "girl" "speed")) => seq?
+    (run* [q] (is-more "girl" "boy" "speed")) => empty?
+    (run* [q] (is-more "boy" "girl" "speed")) => seq?
     ))
 
 (facts "questions"
@@ -127,10 +127,16 @@
       "Is a crayfish larger than a lobster" "no"
       "Is a crayfish larger than a girl" "no idea"
 
+      ;; Cheetah is fastest animal
       "Are girls slower than a cheetah?" "yes"
-      "Are girls faster than a cheetah?" "no"
       "Are cheetah faster than a girls" "yes"
-      "Are cheetah slower than a girls" "no"
+      "Are cheetah faster than a worm" "yes"
+      "Are worm slower than a cheetah" "yes"
+      "Which is faster: cheetah or girl" "cheetah"
+
+      "Are boys faster than a girls" "yes"
+      "Are girls faster than a boys" "no"
+      "Are boys slower than a girls" "no"
 
       "Are worms less intelligent than a octopuses" "yes"
       "Are worms more intelligent than a octopuses" "no"
@@ -150,4 +156,5 @@
       "Can aardvarks swim?" "yes"
 
       "Which animal eats worms?" "mongoose"
+      "What mongoose eats?" "no idea"
       )))

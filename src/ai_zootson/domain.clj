@@ -29,13 +29,20 @@
 (pldb/db-rel is-more a1 a2 prop)
 (defn is-less [x y prop]
   (is-more y x prop))
+(pldb/db-rel is-most animal prop)
+(pldb/db-rel is-least animal prop)
 
 (def adjectives {
                  "slow" {:prop "speed" :oppposite "fast" :less true}
                  "fast" {:prop "speed" :opposite "slow"}
                  "small" {:prop "size" :opposite "big" :less true}
                  "big" {:prop "size" :opposite "small"}
-                 "large" {:prop "size" :opposite "small"}})
+                 "large" {:prop "size" :opposite "small"}
+                 "largest" {:prop "size" :most true}
+                 "smallest" {:prop "size" :least true}
+                 "fastest" {:prop "speed" :most true}
+                 "slowest" {:prop "speed" :least true}
+                 })
 
 (def opposites (into {} (map (fn [[k v]]
                                [k (:opposite v)])

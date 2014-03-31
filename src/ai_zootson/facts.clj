@@ -72,14 +72,21 @@
   (map flatten-fact facts))
 
 (defn add-facts [db facts]
-  (reduce (fn [db [fact animal & rest :as full]]
+  (reduce (fn [db [fact animal & [f & _ :as rest] :as full]]
             ;; In case animal is alias, use the real animal
             (let [animal (real-animal db animal)
-                  fact (symbol (name fact))]
+                  fact (symbol (name fact))
+                  {:keys [prop least most]} (get adjectives f)
+                  ]
               (println full)
               (cond
                 (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
                 (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))
+
+                (and (= fact 'is-smth) (or most least))
+                (if most
+                  (pldb/db-fact db is-most animal prop)
+                  (pldb/db-fact db is-least animal prop))
 
                 (#{'is-more 'is-less} fact)
                 (let [[adj animal2] rest
