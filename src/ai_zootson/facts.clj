@@ -5,6 +5,7 @@
             [ai-zootson.domain :refer :all]
             [clojure.core.logic :refer :all]
             [clojure.core.logic.pldb :as pldb]
+            [slingshot.slingshot :refer [try+]]
             ))
 
 (def fact-language
@@ -78,7 +79,7 @@
                   fact (symbol (name fact))
                   {:keys [prop least most]} (get adjectives f)
                   ]
-              (println full)
+              ;; (println full)
               (cond
                 (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
                 (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))
@@ -106,9 +107,13 @@
 
 (defn read-facts [db data]
   (reduce (fn [db line]
-            (->> line
-                 (parse-fact-sentence)
-                 (expand)
-                 (flatten-facts)
-                 (add-facts db)))
+            ;; (try+
+              (->> line
+                   (parse-fact-sentence)
+                   (expand)
+                   (flatten-facts)
+                   (add-facts db))
+              ;; (catch Object _
+              ;;   db))
+              )
           db (line-seq data)))

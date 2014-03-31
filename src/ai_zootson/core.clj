@@ -8,7 +8,8 @@
             [ai-zootson.questions :refer :all]
             [ai-zootson.util :refer :all]
             [ai-zootson.facts :refer [read-facts]]
-            ))
+            )
+  (:gen-class))
 
 (defn read-zoo-data [db [name hair feathers eggs milk airborne aquatic predator toothed backbone
                          breathes venomous fins legs tail domestic catsize type]]
@@ -60,8 +61,18 @@
 (defn read-files []
   "Create a new db and add facts from files into it."
   (-> (pldb/db)
-      (read-file "inputs/zoo.data" read-data read-zoo-data)
-      (read-file "inputs/continents.txt" read-data read-continent)
-      (read-file "inputs/facts.txt" read-facts)
-      (read-file "inputs/own_facts.txt" read-facts)
+      (read-file "zoo.data" read-data read-zoo-data)
+      (read-file "continents.txt" read-data read-continent)
+      (read-file "facts.txt" read-facts)
+      (read-file "own_facts.txt" read-facts)
       ))
+
+(defn answer-questions [db data]
+  (with-open [wrtr (clojure.java.io/writer "answers.txt")]
+    (doseq [line (line-seq data)]
+      (.write wrtr (str (answer-question db line) "\n"))
+      )))
+
+(defn -main [& args]
+  (-> (read-files)
+      (read-file "questions.txt" answer-questions)))
