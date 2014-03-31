@@ -101,19 +101,19 @@
                     (pldb/db-fact db is-more animal2 animal prop)
                     (pldb/db-fact db is-more animal animal2 prop)))
 
-                :else (apply pldb/db-fact db @(resolve fact) animal rest)
+                :else (apply pldb/db-fact db @(ns-resolve 'ai-zootson.domain fact) animal rest)
                 )))
           db (filter #(not (nil? %)) facts)))
 
 (defn read-facts [db data]
   (reduce (fn [db line]
-            ;; (try+
+            (try+
               (->> line
                    (parse-fact-sentence)
                    (expand)
                    (flatten-facts)
                    (add-facts db))
-              ;; (catch Object _
-              ;;   db))
+              (catch Object _
+                db))
               )
           db (line-seq data)))
