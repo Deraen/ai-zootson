@@ -65,28 +65,66 @@
     (tabular
       (fact answer-question
         (answer-question db ?line) => ?expected)
-      ?line                                               ?expected
-      "Where do aardvarks live?"                          "Africa"
+      ?line ?expected
+      "Where do aardvarks live?"
+      "Africa"
 
       ;; Sample q
-      "Where do anteaters live?"                          "Africa"
-      ;; "How many reptiles do you know?"                    "5"
-      ;; "What hairy reptiles do you know?"               "none"
+      "Where do anteaters live?"
+      "Africa"
 
-      ;; "Mention a bat that lives in South America."     "vampire"
+      "How many reptiles do you know?"
+      "5"
 
-      ;; "Which animal eats worms?"                       "mongoose"
-      ;; "What kind of a tail does a lynx have?"          "short"
-      ;; "Which is smaller: dolphin or crayfish?"         "crayfish"
+      "What hairy reptiles do you know?"
+      "none"
+
+      ;; variant of previous where own_facts contains an answer
+      "What stupid reptiles do you know?"
+      "seasnake"
+
+      "Mention a bat that lives in South America."
+      "vampire"
+
+      ;; "Which animal eats worms?"
+      ;; "mongoose"
+
+      "What kind of a tail does a lynx have?"
+      "short"
+
+      ;; "Which is smaller: dolphin or crayfish?"
+      ;; "crayfish"
+
       ;; "Is a lobster smaller than a crayfish?"          "no"
+
       ;; "Are girls slower than a cheetah?"               "yes"
+
       ;; "Mention an animal that is a national symbol. "  "kiwi"
+
       ;; "Can aardvarks swim?"                            "yes"
+
       ;; "Which animal has ears?"                         "elephant"
+
       ;; "Do bears and dogfish have fins?"                "no"
-      ;; "How many legs does a crayfish have?"            "6"
-      ;; "Is it true that deer are not poisonous?"        "yes"
-      ;; "Which animals are able to meow?"                "girl, pussycat"
-      ;; "Is it true that elephants do not lay eggs?"     "yes"
-      ;; "Is it false that girls cannot meow?"            "yes"
+
+      "How many legs does a crayfish have?"
+      "6"
+
+      "Is it true that deer are not poisonous?" "yes"
+      "Is it true that deer are poisonous?" "no"
+      "Is it false that deer are not poisonous?" "no"
+      "Is it false that deer are poisonous?" "yes"
+
+      "Which animals are able to meow?"
+      "girl, pussycat"
+
+      "Is it true that elephants do not lay eggs?" "yes"
+      "Is it true that elephants do lay eggs?" "no"
+      "Is it false that elephants do not lay eggs?" "no"
+      "Is it false that elephants do lay eggs?" "yes"
+
+      "Is it false that girls cannot meow?" "yes"
+      "Is it true that girls cannot meow?" "no"
+      "Is it false that girls can meow?" "no"
+      "Is it true that girls can meow?" "yes"
       )))

@@ -88,5 +88,5 @@
 
 (defn check-lives-in [animal continent]
   (fresh [x]
-         (some-animal x animal)
+         (some-animal animal x)
          (lives-in x continent true)))

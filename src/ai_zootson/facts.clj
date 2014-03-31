@@ -86,6 +86,7 @@
             ;; In case animal is alias, use the real animal
             (let [animal (real-animal db animal)
                   fact (symbol (name fact))]
+              ;; (println full)
               (cond
                 (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
                 (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))

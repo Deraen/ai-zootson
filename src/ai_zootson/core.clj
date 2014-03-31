@@ -15,6 +15,8 @@
   (-> db
       (pldb/db-fact animal name)
       (pldb/db-fact has-prop name "hair" (= hair "1"))
+      (pldb/db-fact has-prop name "hairy" (= hair "1"))
+
       (pldb/db-fact has-prop name "feathers" (= feathers "1"))
       (pldb/db-fact has-prop name "eggs" (= eggs "1"))
       (pldb/db-fact has-prop name "milk" (= milk "1"))
@@ -24,7 +26,12 @@
       (pldb/db-fact has-prop name "toothed" (= toothed "1"))
       (pldb/db-fact has-prop name "backbone" (= backbone "1"))
       (pldb/db-fact has-prop name "breathes" (= breathes "1"))
+
+      ;; As defined zoo.names
       (pldb/db-fact has-prop name "venomous" (= venomous "1"))
+      ;; As used in example q
+      (pldb/db-fact has-prop name "poisonous" (= venomous "1"))
+
       (pldb/db-fact has-prop name "fins" (= fins "1"))
       (pldb/db-fact has-prop name "legs" (Integer/parseInt legs))
       (pldb/db-fact has-prop name "tail" (= tail "1"))
