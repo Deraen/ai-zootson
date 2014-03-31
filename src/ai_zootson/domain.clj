@@ -23,6 +23,7 @@
 (pldb/db-rel is-able animal thing)
 (pldb/db-rel is-smth animal thing)
 (pldb/db-rel is-smth-of animal thing adj)
+(pldb/db-rel do-smth animal thing target)
 
 ;; Superlatives
 (pldb/db-rel is-more a1 a2 prop)

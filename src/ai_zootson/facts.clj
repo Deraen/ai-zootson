@@ -14,7 +14,7 @@
    is just to separate multi word nouns etc.
    - One fact in examples ends in trailing whitespace so allow spaces at the end of sentence."
   (insta/parser (str
-    "<S> = (is-alias | is-alias-reverse | is-smth | is-more | is-less | animal | has-prop | some-kind-prop | is-able | eats | is-smth-of) <TERMINATOR? space*>
+    "<S> = (is-alias | is-alias-reverse | is-smth | is-more | is-less | animal | has-prop | some-kind-prop | is-able | do-smth | is-smth-of) <TERMINATOR? space*>
 
      (* these names are nearly... directly transleted to core.logic relations *)
      is-alias = NOUN space <'is' space (articles space)? ('alias' | 'synonym')> space <'for'> space NOUN
@@ -29,8 +29,10 @@
      has-prop = NOUNS space <'has' | 'have'> space NOUN
      some-kind-prop = NOUNS space <'has' | 'have'> space ADJ space NOUN
      is-able = NOUNS space <'can'> space NOUN
-     eats = NOUNS space <'feed on' | 'eat'> space NOUNS
+     do-smth = NOUNS space verb space <'on'> space NOUNS
      is-smth-of = NOUNS space <'is' | 'are'> space NOUN space <'of'> space NOUN
+
+     verb = word
 
      ADJ = ADJWORDS
      " sentence/shared-bnf)))

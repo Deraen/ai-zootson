@@ -24,7 +24,7 @@
     ;; Examples
     (run* [q] (fresh [x] (some-animal "anteater" x) (lives-in x q true))) => (just "africa")
     (run* [q] (lives-in q "south america" true) (is-smth q "bat")) => (just "vampire")
-    (run* [q] (eats q "worm")) => (just "mongoose")
+    (run* [q] (do-smth q "feed" "worm")) => (just "mongoose")
     (run* [q] (has-prop "lynx" "tail" q)) => (contains "short")
 
     (run* [q] (fresh [x] (is-smth-of q "national symbol" x))) => (just "kiwi")
@@ -48,6 +48,7 @@
 
     ;; Others
     (run* [q] (is-smth "aardvark" "good" "swimmer")) => seq?
+    (run* [q] (fresh [x] (is-smth q x "swimmer"))) => (just "aardvark")
     (run* [q] (is-smth "cheetah" "fastest" "land animal")) => seq?
 
 
@@ -87,8 +88,7 @@
       "What hairy reptiles do you know?" "none"
 
       ;; variant of previous where own_facts contains an answer
-      "What stupid reptiles do you know?"
-      "seasnake"
+      ;; "What stupid reptiles do you know?" "seasnake"
 
       "Mention a bat that lives in South America."
       "vampire"
@@ -143,11 +143,11 @@
 
       "Mention an animal that is a national symbol. " "kiwi"
 
-      ;; "Can aardvarks swim?" "yes"
-
       "Which animal has ears?" "elephant"
 
       "What venomous reptiles do you know?" "seasnake, pitviper"
 
-      ;; "Which animal eats worms?" "mongoose"
+      "Can aardvarks swim?" "yes"
+
+      "Which animal eats worms?" "mongoose"
       )))

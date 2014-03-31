@@ -24,7 +24,7 @@
     [:mention [:what-kind [:ADJ "bat"]] [:lives-in [:NOUN "south america"]]]
 
     "Which animal eats worms?"
-    [:which [:does-smth "eats" [:food [:NOUN "worm"]]]]
+    [:which [:does-smth "eats"] [:does-target [:NOUN "worm"]]]
 
     "What kind of a tail does a lynx have?"
     [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "lynx"]]]
@@ -39,7 +39,7 @@
     [:compare [:animal1 [:NOUN "girl"]] [:comp "slow"] [:animal2 [:NOUN "cheetah"]]]
 
     "Mention an animal that is a national symbol. "
-    [:mention [:is-smth [:NOUN "national symbol"]]]
+    [:mention [:is-smth2 [:NOUN "national symbol"]]]
 
     "Can aardvarks swim?"
     [:can-do [:animal [:NOUN "aardvark"]] [:verb "swim"]]
@@ -102,6 +102,11 @@
     {:type :do-have
      :animals ["bear" "dogfish"]
      :has-smth "fin"}
+
+    [:which [:does-smth "eats"] [:does-target [:NOUN "worm"]]]
+    {:type :which
+     :does-smth "eats"
+     :does-target "worm"}
     ))
 
 ;; (fact suck-it
