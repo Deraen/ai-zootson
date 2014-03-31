@@ -57,7 +57,10 @@
     [:is-smth [:NOUNS [:NOUN "octopus"]] [:NOUN "intelligent"]]
 
     "Octopuses are more intelligent than worms."
-    [:is-more [:NOUN "octopus"] [:ADJ "intelligent"] [:NOUN "worm"]]
+    [:is-more [:NOUN "octopus"] [:NOUN "intelligent"] [:NOUN "worm"]]
+
+    "Octopuses are less intelligent than worms."
+    [:is-less [:NOUN "octopus"] [:NOUN "intelligent"] [:NOUN "worm"]]
 
     "Vampires and fruitbats are bats."
     [:is-smth [:NOUNS [:NOUN "vampire"] [:NOUN "fruitbat"]] [:NOUN "bat"]]

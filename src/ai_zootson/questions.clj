@@ -10,8 +10,8 @@
             [ai-zootson.sentence :as sentence]))
 
 (def question-language
-  (insta/parser
-    "<S> = (where | how-many | what | mention | which | which-is | what-kind-of | boolean) <TERMINATOR? space*>
+  (insta/parser (str
+    "<S> = (where | how-many | what | mention | which | which-is | what-kind-of | boolean | compare) <TERMINATOR? space*>
 
      animal = NOUN
      what-kind = ADJ
@@ -32,11 +32,17 @@
      are-able = <'are able to'> space NOUN
      which = <'which' (space 'animal' 's'?)?> space (does-smth | are-able)
 
+     less = 'less'
+     more = 'more'
+     comp = ADJWORDS
+     comp2 = ADJ
      animal1 = NOUN
      animal2 = NOUN
-     which-is = <'which is'> space what-kind <':'>? space animal1 space <'or'> space animal2
+     which-is = <'which is'> space ((less | <more>) space comp2 | comp) <':'>? space animal1 space <'or'> space animal2
 
-     what-kind-of = <'what kind of'> space what-kind space <'does'> space animal space <'have'>
+     compare = <'is' | 'are'> space animal1 space ((less | <more>) space comp2 | comp) space <'than'> space animal2
+
+     what-kind-of = <'what kind of'> space what-kind space <'does' | 'do'> space animal space <'have'>
 
      verb = word
      do = <'do'> space <verb> space ADJ
@@ -49,21 +55,8 @@
      boolean-type = 'true' | 'false'
      boolean = <'is it'> space boolean-type space <'that'> space animal space (do | can | are | do-not | cannot | arent)
 
-     <letter> = #'\\p{L}'
-     <space> = <#'\\s'>
-     <space-visible> = #'\\s'
-     <word> = #'\\p{L}+'
-
-     <articles> = <('a' | 'an' | 'the')>
-     <conjunctions> = ('and' | 'than' | 'of' | 'for' | 'as')
-
-     (* NOUN are not nouns nor are ADJ adjectives... what ever... *)
-     <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+ ('us' <'es'> | 'ose' <'s'> | <'s'>)?
-     NOUN = <[articles space]> noun-word (space-visible noun-word)*
      ADJ = <[articles space]> letter+
-
-     TERMINATOR = '.' | '?' | '!'
-     "))
+     " sentence/shared-bnf)))
 
 (defn process-value [value]
   (cond
@@ -119,6 +112,7 @@
 (defn get-facts [db {:keys [type what-kind animal animal-class lives-in does-smth
                             are-able
                             cannot can do do-not are arent
+                            animal1 animal2 comp
                             ] :as processed}]
   (cond
     ;; FIXME: Aliases only work with some question types...
@@ -136,6 +130,34 @@
     (and animal cannot) [(if (empty? (run* [q] (is-able animal cannot))) true false)]
     (and animal arent) (reverse-foo (run* [q] (check-fact animal arent q)))
     (and animal do-not) (reverse-foo (run* [q] (check-fact animal do-not q)))
+
+    (= type :which-is) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
+                             prop (or prop (:comp2 processed))
+                             less (or less (:less processed))]
+                         (println prop less)
+                         (if less
+                           (run* [q]
+                                 (conde [(== q animal1) (is-less q animal2 prop)]
+                                        [(== q animal2) (is-less q animal1 prop)]))
+                           (run* [q]
+                                 (conde [(== q animal1) (is-more q animal2 prop)]
+                                        [(== q animal2) (is-more q animal1 prop)]))
+                           ))
+
+    (= type :compare) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
+                             prop (or prop (:comp2 processed))
+                             less (or less (:less processed))]
+                        (println prop less)
+                        (if less
+                          (cond
+                            (seq (run* [q] (is-less animal1 animal2 prop))) [true]
+                            (seq (run* [q] (is-more animal1 animal2 prop))) [false]
+                            :else [])
+                          (cond
+                            (seq (run* [q] (is-more animal1 animal2 prop))) [true]
+                            (seq (run* [q] (is-less animal1 animal2 prop))) [false]
+                            :else [])
+                          ))
 
     are-able (run* [q] (is-able q are-able))
     animal-class (run* [q] (classify q animal-class))
@@ -164,6 +186,17 @@
                           "yes"
                           "no"))
 
+    (= type :which-is) (let [f (first facts)]
+                         (if f
+                           f
+                           "no idea"))
+
+    (= type :compare) (if (empty? facts)
+                        "no idea"
+                        (if (first facts)
+                          "yes"
+                          "no"))
+
     :else "no idea (format)"
     ))
 
@@ -177,8 +210,8 @@
 
             foo (get-facts db processed)
             ]
-        ;; (println processed)
-        ;; (println foo)
+        (println processed)
+        (println foo)
         (format-answer processed foo)))
     ;; (catch Object _
     ;;   "no idea (exception)"))

@@ -29,21 +29,23 @@
 (defn is-less [x y prop]
   (is-more y x prop))
 
-(def adjectives {"slow" {:prop "speed" :oppposite "fast"}
+(def adjectives {
+                 "slow" {:prop "speed" :oppposite "fast" :less true}
                  "fast" {:prop "speed" :opposite "slow"}
-                 "small" {:prop "size" :opposite "big"}
-                 "big" {:prop "size" :opposite "small"}})
+                 "small" {:prop "size" :opposite "big" :less true}
+                 "big" {:prop "size" :opposite "small"}
+                 "large" {:prop "size" :opposite "small"}})
 
 (def opposites (into {} (map (fn [[k v]]
                                [k (:opposite v)])
                              adjectives)))
 
-(defn is-better [a1 a2 prop]
-  (let [reverse (contains? opposites prop)
-        prop (get opposites prop prop)]
-    (if reverse
-      (is-less a1 a2 prop)
-      (is-more a1 a2 prop))))
+;; (defn is-better [a1 a2 prop]
+;;   (let [reverse (contains? opposites prop)
+;;         prop (get opposites prop prop)]
+;;     (if reverse
+;;       (is-less a1 a2 prop)
+;;       (is-more a1 a2 prop))))
 
 ;; Alias
 (pldb/db-rel is-alias a1 a2)

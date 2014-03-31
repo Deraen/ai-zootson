@@ -30,14 +30,14 @@
     [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "lynx"]]]
 
     "Which is smaller: dolphin or crayfish?"
-    [:which-is [:what-kind [:ADJ "smaller"]] [:animal1 [:NOUN "dolphin"]] [:animal2 [:NOUN "crayfish"]]]
+    [:which-is [:comp "small"] [:animal1 [:NOUN "dolphin"]] [:animal2 [:NOUN "crayfish"]]]
 
-;;     "Is a lobster smaller than a crayfish?"
-;;     []
-;;
-;;     "Are girls slower than a cheetah?"
-;;     []
-;;
+    "Is a lobster smaller than a crayfish?"
+    [:compare [:animal1 [:NOUN "lobster"]] [:comp "small"] [:animal2 [:NOUN "crayfish"]]]
+
+    "Are girls slower than a cheetah?"
+    [:compare [:animal1 [:NOUN "girl"]] [:comp "slow"] [:animal2 [:NOUN "cheetah"]]]
+
 ;;     "Mention an animal that is a national symbol. "
 ;;     []
 ;;
@@ -64,6 +64,21 @@
 
     "Is it false that girls cannot meow?"
     [:boolean [:boolean-type "false"] [:animal [:NOUN "girl"]] [:cannot [:ADJ "meow"]]]
+
+    "Are worms less intelligent than a octopuses"
+    [:compare [:animal1 [:NOUN "worm"]] [:less "less"] [:comp2 [:ADJ "intelligent"]] [:animal2 [:NOUN "octopus"]]]
+
+    "Are worms more intelligent than a octopuses"
+    [:compare [:animal1 [:NOUN "worm"]] [:comp2 [:ADJ "intelligent"]] [:animal2 [:NOUN "octopus"]]]
+
+    "Which is more intelligent: dolphin or crayfish?"
+    [:which-is [:comp2 [:ADJ "intelligent"]] [:animal1 [:NOUN "dolphin"]] [:animal2 [:NOUN "crayfish"]]]
+
+    "Which is less intelligent dolphin or crayfish?"
+    [:which-is [:less "less"] [:comp2 [:ADJ "intelligent"]] [:animal1 [:NOUN "dolphin"]] [:animal2 [:NOUN "crayfish"]]]
+
+    "What kind of a tail do mongooses have?"
+    [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "mongoose"]]]
     ))
 
 (fact process-question
