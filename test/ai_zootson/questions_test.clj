@@ -3,7 +3,8 @@
   (:require [midje.sweet :refer :all]
             [ai-zootson.questions :refer :all]
             [clojure.core.logic :refer :all]
-            [clojure.core.logic.pldb :as pldb]))
+            [clojure.core.logic.pldb :as pldb]
+            [clojure.tools.macro :refer :all]))
 
 (facts parse-questions
   (tabular
@@ -82,18 +83,33 @@
      :do-not "eggs"}
     ))
 
-(fact build-query
-  (tabular
-    (fact (build-query ?input) => ?output)
-    ?input ?output
-
-    {:type :where
-     :animal "anteater"}
-    [['lives-in "anteater" :q]]
-
-    {:type :mention
-     :what-kind "bat"
-     :lives-in "south america"}
-    [['check-fact :q "bat"]
-     ['lives-in :q "south america"]]
-    ))
+;; (fact suck-it
+;;   (suck-it {} [[:check-fact :q "bat"]
+;;             [:lives-in :q "south america" true]]) =>
+;;   '(run-db* {} [q]
+;;          (check-fact q "bat")
+;;          (lives-in q "south america" true))
+;;
+;;   (let [query [[:check-fact :q "bat"]
+;;                [:lives-in :q "south america" true]]]
+;;     (suck-it {} query) =>
+;;     '(run-db* {} [q]
+;;            (check-fact q "bat")
+;;            (lives-in q "south america" true)))
+;;   )
+;;
+;; (fact build-query
+;;   (tabular
+;;     (fact (build-query ?input) => ?output)
+;;     ?input ?output
+;;
+;;     {:type :where
+;;      :animal "anteater"}
+;;     [[:lives-in "anteater" :q true]]
+;;
+;;     {:type :mention
+;;      :what-kind "bat"
+;;      :lives-in "south america"}
+;;     [[:check-fact :q "bat"]
+;;      [:lives-in :q "south america" true]]
+;;     ))

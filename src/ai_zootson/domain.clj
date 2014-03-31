@@ -85,3 +85,8 @@
   (conde
     [(is-able animal thing)]
     [(fresh [x] (is-smth animal x thing))]))
+
+(defn check-lives-in [animal continent]
+  (fresh [x]
+         (some-animal x animal)
+         (lives-in x continent true)))
