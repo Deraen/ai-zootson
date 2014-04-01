@@ -209,7 +209,10 @@
 (defn format-answer [{:keys [type boolean-type can cannot]} [f & _ :as facts]]
   (cond
     (and (= type :where) (empty? facts)) "nowhere"
-    (= type :where) (clojure.string/capitalize (clojure.string/join ", " facts))
+    (= type :where) (->> (map clojure.string/capitalize
+                              (-> (clojure.string/join ", " facts)
+                                  (clojure.string/split #"\s")))
+                         (clojure.string/join " "))
 
     (and (= type :how-many) (number? f) (= (count facts) 1)) (str f)
     (= type :how-many) (str (count facts))
@@ -217,7 +220,7 @@
     (and (#{:what :mention :which} type) (empty? facts)) "none"
     (#{:what :mention :which} type) (clojure.string/join ", " facts)
 
-    (and (= type :what-kind-of) (empty? facts)) "no idea"
+    (and (= type :what-kind-of) (empty? (filter string? facts))) "no idea"
     (= type :what-kind-of) (clojure.string/join ", " (filter string? facts))
 
     (= type :boolean) (if (empty? facts)

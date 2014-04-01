@@ -105,15 +105,16 @@
                 )))
           db (filter #(not (nil? %)) facts)))
 
+(defn read-fact [db line]
+  (try+
+    (->> line
+         (parse-fact-sentence)
+         (expand)
+         (flatten-facts)
+         (add-facts db))
+    (catch Object _
+      db))
+  )
+
 (defn read-facts [db data]
-  (reduce (fn [db line]
-            (try+
-              (->> line
-                   (parse-fact-sentence)
-                   (expand)
-                   (flatten-facts)
-                   (add-facts db))
-              (catch Object _
-                db))
-              )
-          db (line-seq data)))
+  (reduce read-fact db (line-seq data)))

@@ -5,9 +5,11 @@
 (defn fix-words [parsed]
   (map (fn [i]
          (if (sequential? i)
-           (cond
-             (#{:NOUN :ADJ} (get i 0)) [(get i 0) (clojure.string/join "" (rest i))]
-             :else (fix-words i))
+           (let [[f & rst] i]
+             (cond
+               (= f :NOUN) [f (singularize (clojure.string/join "" rst))]
+               (= f :ADJ) [f (clojure.string/join "" rst)]
+               :else (fix-words i)))
            i))
        parsed))
 
@@ -20,7 +22,7 @@
    <articles> = <('a' | 'an' | 'the')>
    <conjunctions> = ('and' | 'than' | 'of' | 'for' | 'as')
 
-   <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+ (('us'|'h') <'es'> | 'se' <'s'> | ('d'|'s'|'m'|'l'|'t'|'r'|'k'|'ge'|'e'|'e'|'i'|'n')<'s'>)?
+   <noun-word> = !(articles space) !(conjunctions space) !('on' space) letter+
    NOUN = <[articles space]> noun-word (space-visible noun-word)*
    <HIDE-NOUNS> = NOUN ((<','> [space <'and'>] | space <'and'>) space (<'etc'> | NOUN))*
    NOUNS = HIDE-NOUNS

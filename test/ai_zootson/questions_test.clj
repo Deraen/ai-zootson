@@ -79,6 +79,12 @@
 
     "What kind of a tail do mongooses have?"
     [:what-kind-of [:what-kind [:ADJ "tail"]] [:animal [:NOUN "mongoose"]]]
+
+    "Where do pumas live?"
+    [:where [:animal [:NOUN "puma"]]]
+
+    "What kind of legs does a lynx have"
+    [:what-kind-of [:what-kind [:ADJ "legs"]] [:animal [:NOUN "lynx"]]]
     ))
 
 (fact process-question

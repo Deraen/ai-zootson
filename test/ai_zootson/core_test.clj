@@ -70,7 +70,8 @@
     ))
 
 (facts "questions"
-  (let [db (read-files)]
+  (let [db (-> (read-files)
+               (ai-zootson.facts/read-fact "Girls and wolves can howl."))]
     (tabular
       (fact answer-question
         (answer-question db ?line) => ?expected)
@@ -157,4 +158,8 @@
 
       "Which animal eats worms?" "mongoose"
       "What mongoose eats?" "no idea"
+
+      "Where do pumas live?" "South America, North America"
+      "What kind of legs does a lynx have" "no idea"
+      "Which animals are able to howl" "girl, wolf"
       )))
