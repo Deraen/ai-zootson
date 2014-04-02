@@ -73,7 +73,7 @@
   (map flatten-fact facts))
 
 (defn add-facts [db facts]
-  (reduce (fn [db [fact animal & [f & _ :as rest] :as full]]
+  (reduce (fn [db [fact animal & [f & rest :as rest2] :as full]]
             ;; In case animal is alias, use the real animal
             (let [animal (real-animal db animal)
                   fact (symbol (name fact))
@@ -81,16 +81,19 @@
                   ]
               ;; (println full)
               (cond
-                (= fact 'is-alias-reverse) (pldb/db-fact db is-alias (first rest) animal)
-                (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 1) (nth rest 0))
+                (= fact 'is-alias-reverse) (pldb/db-fact db is-alias f animal)
+                (= fact 'some-kind-prop) (pldb/db-fact db has-prop animal (nth rest 0) f)
+
+                ;; If we have some specifiers eg. fastest LAND animal
+                (and (= fact 'is-smth) (or most least) (seq rest))
+                (pldb/db-fact db (if most is-most2 is-least2) animal prop (clojure.string/replace (first rest) #" animal$" ""))
 
                 (and (= fact 'is-smth) (or most least))
-                (if most
-                  (pldb/db-fact db is-most animal prop)
-                  (pldb/db-fact db is-least animal prop))
+                (pldb/db-fact db (if most is-most is-least) animal prop)
 
                 (#{'is-more 'is-less} fact)
-                (let [[adj animal2] rest
+                (let [adj f
+                      [animal2 & _] rest
                       animal2 (real-animal db animal2)
                       {:keys [prop less]} (get adjectives adj {:prop adj})
 
@@ -101,7 +104,7 @@
                     (pldb/db-fact db is-more animal2 animal prop)
                     (pldb/db-fact db is-more animal animal2 prop)))
 
-                :else (apply pldb/db-fact db @(ns-resolve 'ai-zootson.domain fact) animal rest)
+                :else (apply pldb/db-fact db @(ns-resolve 'ai-zootson.domain fact) animal rest2)
                 )))
           db (filter #(not (nil? %)) facts)))
 

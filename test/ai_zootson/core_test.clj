@@ -162,4 +162,7 @@
       "Where do pumas live?" "South America, North America"
       "What kind of legs does a lynx have" "no idea"
       "Which animals are able to howl" "girl, wolf"
+
+      ;; Catfish isn't a land animal
+      "Are cheetahs faster than catfish?" "no idea"
       )))

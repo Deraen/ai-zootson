@@ -32,6 +32,12 @@
 (pldb/db-rel is-most animal prop)
 (pldb/db-rel is-least animal prop)
 
+(pldb/db-rel is-more2 a1 a2 prop what-kind)
+(defn is-less2 [x y prop what-kind]
+  (is-more2 y x prop what-kind))
+(pldb/db-rel is-most2 animal prop what-kind)
+(pldb/db-rel is-least2 animal prop what-kind)
+
 (def adjectives {
                  "slow" {:prop "speed" :oppposite "fast" :less true}
                  "fast" {:prop "speed" :opposite "slow"}
