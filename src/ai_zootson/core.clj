@@ -13,33 +13,38 @@
 
 (defn read-zoo-data [db [name hair feathers eggs milk airborne aquatic predator toothed backbone
                          breathes venomous fins legs tail domestic catsize type]]
-  (-> db
-      (pldb/db-fact animal name)
-      (pldb/db-fact has-prop name "hair" (= hair "1"))
-      (pldb/db-fact has-prop name "hairy" (= hair "1"))
+  (let [airborne (= airborne "1")
+        aquatic (= aquatic "1")]
+    (-> db
+        (pldb/db-fact animal name)
+        (pldb/db-fact has-prop name "hair" (= hair "1"))
+        (pldb/db-fact has-prop name "hairy" (= hair "1"))
 
-      (pldb/db-fact has-prop name "feathers" (= feathers "1"))
-      (pldb/db-fact has-prop name "eggs" (= eggs "1"))
-      (pldb/db-fact has-prop name "milk" (= milk "1"))
-      (pldb/db-fact has-prop name "airborne" (= airborne "1"))
-      (pldb/db-fact has-prop name "aquatic" (= aquatic "1"))
-      (pldb/db-fact has-prop name "predator" (= predator "1"))
-      (pldb/db-fact has-prop name "toothed" (= toothed "1"))
-      (pldb/db-fact has-prop name "backbone" (= backbone "1"))
-      (pldb/db-fact has-prop name "breathes" (= breathes "1"))
+        (pldb/db-fact has-prop name "feathers" (= feathers "1"))
+        (pldb/db-fact has-prop name "eggs" (= eggs "1"))
+        (pldb/db-fact has-prop name "milk" (= milk "1"))
 
-      ;; As defined zoo.names
-      (pldb/db-fact has-prop name "venomous" (= venomous "1"))
-      ;; As used in example q
-      (pldb/db-fact has-prop name "poisonous" (= venomous "1"))
+        (pldb/db-fact has-prop name "airborne" airborne)
+        (pldb/db-fact has-prop name "aquatic" aquatic)
+        (pldb/db-fact has-prop name "land" (not (or airborne aquatic)))
 
-      (pldb/db-fact has-prop name "fins" (= fins "1"))
-      (pldb/db-fact has-prop name "legs" (Integer/parseInt legs))
-      (pldb/db-fact has-prop name "tail" (= tail "1"))
-      (pldb/db-fact has-prop name "domestic" (= domestic "1"))
-      (pldb/db-fact has-prop name "catsize" (= catsize "1"))
-      (pldb/db-fact classify name (get animal-classes (Integer/parseInt type)))
-      ))
+        (pldb/db-fact has-prop name "predator" (= predator "1"))
+        (pldb/db-fact has-prop name "toothed" (= toothed "1"))
+        (pldb/db-fact has-prop name "backbone" (= backbone "1"))
+        (pldb/db-fact has-prop name "breathes" (= breathes "1"))
+
+        ;; As defined zoo.names
+        (pldb/db-fact has-prop name "venomous" (= venomous "1"))
+        ;; As used in example q
+        (pldb/db-fact has-prop name "poisonous" (= venomous "1"))
+
+        (pldb/db-fact has-prop name "fins" (= fins "1"))
+        (pldb/db-fact has-prop name "legs" (Integer/parseInt legs))
+        (pldb/db-fact has-prop name "tail" (= tail "1"))
+        (pldb/db-fact has-prop name "domestic" (= domestic "1"))
+        (pldb/db-fact has-prop name "catsize" (= catsize "1"))
+        (pldb/db-fact classify name (get animal-classes (Integer/parseInt type)))
+        )))
 
 (defn read-continent [db [name africa europe asia north-america south-america australia antarctica]]
   (-> db

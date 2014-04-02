@@ -158,19 +158,31 @@
                              prop (or prop (:comp2 processed))
                              less (or less (:less processed))]
                          ;; (println prop less)
+                         ;; Could be written much more elegantly...
                          (if less
                            (run* [q]
                                  (conde [(== q animal1) (is-less q animal2 prop)]
                                         [(== q animal2) (is-less q animal1 prop)]
                                         [(== q animal1) (is-least q prop)]
-                                        [(== q animal2) (is-least q prop)]))
+                                        [(== q animal2) (is-least q prop)]
+                                        [(fresh [x]
+                                                (== q animal1) (is-least2 q prop x) (has-prop animal2 x true))]
+                                        [(fresh [x]
+                                                (== q animal2) (is-least2 q prop x) (has-prop animal1 x true))]
+                                        ))
                            (run* [q]
                                  (conde [(== q animal1) (is-more q animal2 prop)]
                                         [(== q animal2) (is-more q animal1 prop)]
                                         [(== q animal1) (is-most q prop)]
-                                        [(== q animal2) (is-most q prop)]))
+                                        [(== q animal2) (is-most q prop)]
+                                        [(fresh [x]
+                                                (== q animal1) (is-most2 q prop x) (has-prop animal2 x true))]
+                                        [(fresh [x]
+                                                (== q animal2) (is-most2 q prop x) (has-prop animal1 x true))]
+                                        ))
                            ))
 
+    ;; Pretty much the same as prev...
     (= type :compare) (let [{:keys [prop less]} (get adjectives comp {:prop comp})
                              prop (or prop (:comp2 processed))
                              less (or less (:less processed))]
@@ -181,12 +193,20 @@
                             (seq (run* [q] (is-more animal1 animal2 prop))) [false]
                             (seq (run* [q] (is-least animal1 prop))) [true]
                             (seq (run* [q] (is-most animal2 prop))) [true]
+                            (seq (run* [q] (fresh [x]
+                                                  (is-least2 animal1 prop x) (has-prop animal2 x true)))) [true]
+                            (seq (run* [q] (fresh [x]
+                                                  (is-most2 animal2 prop x) (has-prop animal1 x true)))) [true]
                             :else [])
                           (cond
                             (seq (run* [q] (is-more animal1 animal2 prop))) [true]
                             (seq (run* [q] (is-less animal1 animal2 prop))) [false]
                             (seq (run* [q] (is-most animal1 prop))) [true]
                             (seq (run* [q] (is-least animal2 prop))) [true]
+                            (seq (run* [q] (fresh [x]
+                                                  (is-most2 animal1 prop x) (has-prop animal2 x true)))) [true]
+                            (seq (run* [q] (fresh [x]
+                                                  (is-least2 animal2 prop x) (has-prop animal1 x true)))) [true]
                             :else [])
                           ))
 
