@@ -4,7 +4,7 @@ Artificial Intelligence course programming excercise.
 
 ## Running
 
-To run main program:
+To run main program (read inputs, read questions, write answers.txt):
 ```
 lein run
 ```
@@ -22,10 +22,6 @@ lein midje :autotest
 - Do not use NLP libraries (NLTK or such).
 - Do not use 3rd party word lists
   - Implementation should only need to know few verbs and adjectives
-
-- Read input files (zoo.data, continents.txt, facts.txt)
-- Read question file
-- Write answers file
 
 ## Implementation
 
