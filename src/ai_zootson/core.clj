@@ -66,10 +66,10 @@
 (defn read-files []
   "Create a new db and add facts from files into it."
   (-> (pldb/db)
-      (read-file "zoo.data" read-data read-zoo-data)
-      (read-file "continents.txt" read-data read-continent)
-      (read-file "facts.txt" read-facts)
-      (read-file "own_facts.txt" read-facts)
+      (read-file "input/zoo.data" read-data read-zoo-data)
+      (read-file "input/continents.txt" read-data read-continent)
+      (read-file "input/facts.txt" read-facts)
+      (read-file "input/own_facts.txt" read-facts)
       ))
 
 (defn answer-questions [db data]
@@ -80,4 +80,4 @@
 
 (defn -main [& args]
   (-> (read-files)
-      (read-file "questions.txt" answer-questions)))
+      (read-file "input/questions.txt" answer-questions)))
