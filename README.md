@@ -25,12 +25,12 @@ lein midje :autotest
 
 ## Implementation
 
-- [http://clojure.org/](Clojure)
-- Uses [https://github.com/clojure/core.logic](core.logic) for fact storage and logical queries
+- [Clojure](http://clojure.org/)
+- Uses [Core.logic](https://github.com/clojure/core.logic) for fact storage and logical queries
 - Processes sentences using BNF
   - Separate BNF defined for facts and questions
-  - BNF parsed with [https://github.com/Engelberg/instaparse](instaparse)
-- [https://github.com/marick/Midje](Midje) for tests
+  - BNF parsed with [Instaparse](https://github.com/Engelberg/instaparse)
+- [Midje](https://github.com/marick/Midje) for tests
 
 ## Possible improvements
 
